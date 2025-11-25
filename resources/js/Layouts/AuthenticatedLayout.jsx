@@ -14,7 +14,7 @@ export default function AuthenticatedLayout({ header, children }) {
         if (user.role === 'teacher') {
             return [
                 { name: 'Dashboard', icon: '📊', href: route('teacher.dashboard'), active: route().current('teacher.dashboard') },
-                { name: 'My Lessons', icon: '📚', href: '#', active: false },
+                { name: 'My Lessons', icon: '📚', href: route('teacher.lessons.index'), active: route().current('teacher.lessons.*') },
                 { name: 'Students', icon: '👥', href: route('teacher.students.index'), active: route().current('teacher.students.*') },
                 { name: 'Quizzes', icon: '📝', href: '#', active: false },
                 { name: 'Materials', icon: '📁', href: '#', active: false },

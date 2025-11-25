@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Teacher\StudentController;
+use App\Http\Controllers\Teacher\LessonController;
+use App\Http\Controllers\Teacher\MaterialController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +36,17 @@ Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->gro
     // Student Management
     Route::resource('students', StudentController::class);
     
+    // Lesson Management
+    Route::get('lessons/generate-code', [LessonController::class, 'generateCode'])->name('lessons.generate-code');
+    Route::resource('lessons', LessonController::class);
+    Route::post('lessons/{lesson}/toggle-status', [LessonController::class, 'toggleStatus'])->name('lessons.toggle-status');
+    
+    // Material Management
+    Route::post('lessons/{lesson}/materials', [MaterialController::class, 'store'])->name('lessons.materials.store');
+    Route::put('lessons/{lesson}/materials/{material}', [MaterialController::class, 'update'])->name('lessons.materials.update');
+    Route::delete('lessons/{lesson}/materials/{material}', [MaterialController::class, 'destroy'])->name('lessons.materials.destroy');
+    Route::get('lessons/{lesson}/materials/{material}/download', [MaterialController::class, 'download'])->name('lessons.materials.download');
+    Route::post('lessons/{lesson}/materials/reorder', [MaterialController::class, 'reorder'])->name('lessons.materials.reorder');
 });
 
 // Student Routes

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import StatsCard from '@/Components/StatsCard';
 import EmptyState from '@/Components/EmptyState';
 import FunButton from '@/Components/FunButton';
@@ -45,14 +45,15 @@ export default function Dashboard({ stats, recentLessons }) {
                             Welcome back! Here's an overview of your teaching activities.
                         </p>
                     </div>
-                    <FunButton
-                        variant="primary"
-                        size="lg"
-                        icon="➕"
-                        onClick={() => window.location.href = '#'}
-                    >
-                        Create New Lesson
-                    </FunButton>
+                    <Link href={route('teacher.lessons.create')}>
+                        <FunButton
+                            variant="primary"
+                            size="lg"
+                            icon="➕"
+                        >
+                            Create New Lesson
+                        </FunButton>
+                    </Link>
                 </div>
             }
         >
