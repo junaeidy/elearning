@@ -1,18 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import toast from 'react-hot-toast';
-import { useEffect } from 'react';
 
 export default function StudentsIndex({ students, flash }) {
-    useEffect(() => {
-        if (flash?.success) {
-            toast.success(flash.success);
-        }
-        if (flash?.error) {
-            toast.error(flash.error);
-        }
-    }, [flash]);
-
     const handleDelete = (student) => {
         if (confirm(`Yakin ingin menghapus akun ${student.username}?`)) {
             router.delete(route('teacher.students.destroy', student.id), {

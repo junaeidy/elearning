@@ -39,10 +39,10 @@ export default function Dashboard({ stats, recentLessons }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900">
-                            Teacher Dashboard 👨‍🏫
+                            Dashboard Guru 👨‍🏫
                         </h2>
                         <p className="mt-1 text-sm text-gray-600">
-                            Welcome back! Here's an overview of your teaching activities.
+                            Selamat datang kembali! Berikut adalah ringkasan aktivitas mengajar Anda.
                         </p>
                     </div>
                     <Link href={route('teacher.lessons.create')}>
@@ -51,13 +51,13 @@ export default function Dashboard({ stats, recentLessons }) {
                             size="lg"
                             icon="➕"
                         >
-                            Create New Lesson
+                            Buat Pelajaran Baru
                         </FunButton>
                     </Link>
                 </div>
             }
         >
-            <Head title="Teacher Dashboard" />
+            <Head title="Dashboard Guru" />
 
             <motion.div
                 variants={containerVariants}
@@ -67,11 +67,11 @@ export default function Dashboard({ stats, recentLessons }) {
             >
                 {/* Stats Cards */}
                 <motion.div variants={itemVariants}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistik Cepat</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatsCard
                             icon="📚"
-                            title="Total Lessons"
+                            title="Total Pelajaran"
                             value={stats.total_lessons}
                             bgGradient="from-purple-500 to-pink-500"
                             iconBg="bg-purple-100"
@@ -79,7 +79,7 @@ export default function Dashboard({ stats, recentLessons }) {
                         />
                         <StatsCard
                             icon="✅"
-                            title="Active Lessons"
+                            title="Pelajaran Aktif"
                             value={stats.active_lessons}
                             bgGradient="from-green-500 to-emerald-500"
                             iconBg="bg-green-100"
@@ -87,7 +87,7 @@ export default function Dashboard({ stats, recentLessons }) {
                         />
                         <StatsCard
                             icon="👥"
-                            title="Total Students"
+                            title="Total Siswa"
                             value={stats.total_students}
                             bgGradient="from-blue-500 to-cyan-500"
                             iconBg="bg-blue-100"
@@ -95,7 +95,7 @@ export default function Dashboard({ stats, recentLessons }) {
                         />
                         <StatsCard
                             icon="📝"
-                            title="Total Quizzes"
+                            title="Total Kuis"
                             value={stats.total_quizzes}
                             bgGradient="from-orange-500 to-yellow-500"
                             iconBg="bg-orange-100"
@@ -107,10 +107,10 @@ export default function Dashboard({ stats, recentLessons }) {
                 {/* Recent Lessons */}
                 <motion.div variants={itemVariants}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Recent Lessons</h3>
-                        <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                            View All →
-                        </a>
+                        <h3 className="text-lg font-semibold text-gray-900">Pelajaran Terbaru</h3>
+                        <Link href={route('teacher.lessons.index')} className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                            Lihat Semua →
+                        </Link>
                     </div>
 
                     {recentLessons.length > 0 ? (
@@ -120,25 +120,25 @@ export default function Dashboard({ stats, recentLessons }) {
                                     <thead className="bg-gradient-to-r from-purple-50 to-pink-50">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Lesson
+                                                Pelajaran
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Subject
+                                                Mata Pelajaran
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Code
+                                                Kode
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                                 Status
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Students
+                                                Siswa
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Created
+                                                Dibuat
                                             </th>
                                             <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                                Actions
+                                                Aksi
                                             </th>
                                         </tr>
                                     </thead>
@@ -194,15 +194,15 @@ export default function Dashboard({ stats, recentLessons }) {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        <button className="text-purple-600 hover:text-purple-900 transition-colors">
+                                                        <Link href={route('teacher.lessons.show', lesson.id)} className="text-purple-600 hover:text-purple-900 transition-colors">
                                                             <span className="text-lg">👁️</span>
-                                                        </button>
-                                                        <button className="text-blue-600 hover:text-blue-900 transition-colors">
+                                                        </Link>
+                                                        <Link href={route('teacher.lessons.edit', lesson.id)} className="text-blue-600 hover:text-blue-900 transition-colors">
                                                             <span className="text-lg">✏️</span>
-                                                        </button>
-                                                        <button className="text-red-600 hover:text-red-900 transition-colors">
+                                                        </Link>
+                                                        <Link href={route('teacher.lessons.destroy', lesson.id)} method="delete" as="button" className="text-red-600 hover:text-red-900 transition-colors">
                                                             <span className="text-lg">🗑️</span>
-                                                        </button>
+                                                        </Link>
                                                     </div>
                                                 </td>
                                             </motion.tr>
@@ -214,18 +214,18 @@ export default function Dashboard({ stats, recentLessons }) {
                     ) : (
                         <EmptyState
                             icon="📚"
-                            title="No lessons yet"
-                            description="Start creating engaging lessons for your students. Click the button above to create your first lesson!"
-                            actionLabel="Create Your First Lesson"
+                            title="Belum ada pelajaran"
+                            description="Mulai membuat pelajaran yang menarik untuk siswa Anda. Klik tombol di atas untuk membuat pelajaran pertama!"
+                            actionLabel="Buat Pelajaran Pertama"
                             actionIcon="➕"
-                            onAction={() => window.location.href = '#'}
+                            onAction={() => window.location.href = route('teacher.lessons.create')}
                         />
                     )}
                 </motion.div>
 
                 {/* Quick Actions */}
                 <motion.div variants={itemVariants}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <motion.a
                             href="#"
@@ -237,8 +237,8 @@ export default function Dashboard({ stats, recentLessons }) {
                                     📝
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Create Quiz</h4>
-                                    <p className="text-sm text-gray-600">Add a new quiz to your lesson</p>
+                                    <h4 className="font-semibold text-gray-900">Buat Kuis</h4>
+                                    <p className="text-sm text-gray-600">Tambahkan kuis baru ke pelajaran</p>
                                 </div>
                             </div>
                         </motion.a>
@@ -253,8 +253,8 @@ export default function Dashboard({ stats, recentLessons }) {
                                     📁
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Upload Material</h4>
-                                    <p className="text-sm text-gray-600">Share resources with students</p>
+                                    <h4 className="font-semibold text-gray-900">Unggah Materi</h4>
+                                    <p className="text-sm text-gray-600">Bagikan sumber belajar dengan siswa</p>
                                 </div>
                             </div>
                         </motion.a>
@@ -269,8 +269,8 @@ export default function Dashboard({ stats, recentLessons }) {
                                     👥
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Manage Students</h4>
-                                    <p className="text-sm text-gray-600">View and manage enrollments</p>
+                                    <h4 className="font-semibold text-gray-900">Kelola Siswa</h4>
+                                    <p className="text-sm text-gray-600">Lihat dan kelola pendaftaran siswa</p>
                                 </div>
                             </div>
                         </motion.a>

@@ -22,10 +22,9 @@ class MaterialController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'type' => 'required|in:video,pdf,image,audio,slide,document',
             'file' => 'required|file|max:102400', // max 100MB
-            'order' => 'nullable|integer|min:0',
+            'order_index' => 'nullable|integer|min:0',
         ]);
 
         // Validate file type based on material type
@@ -50,22 +49,21 @@ class MaterialController extends Controller
         $path = $file->store('materials/' . $lesson->id, 'public');
 
         // Get the next order number if not provided
-        if (!isset($validated['order'])) {
-            $validated['order'] = $lesson->materials()->max('order') + 1;
+        if (!isset($validated['order_index'])) {
+            $validated['order_index'] = $lesson->materials()->max('order_index') + 1;
         }
 
         // Create material
         $material = $lesson->materials()->create([
             'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
             'file_path' => $path,
             'file_size' => $file->getSize(),
             'mime_type' => $mimeType,
-            'order' => $validated['order'],
+            'order_index' => $validated['order_index'],
         ]);
 
-        return back()->with('success', 'Material uploaded successfully!');
+        return back()->with('success', 'Materi berhasil diunggah!');
     }
 
     /**
@@ -80,14 +78,13 @@ class MaterialController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'type' => 'required|in:video,pdf,image,audio,slide,document',
-            'order' => 'nullable|integer|min:0',
+            'order_index' => 'nullable|integer|min:0',
         ]);
 
         $material->update($validated);
 
-        return back()->with('success', 'Material updated successfully!');
+        return back()->with('success', 'Materi berhasil diperbarui!');
     }
 
     /**
@@ -107,7 +104,7 @@ class MaterialController extends Controller
 
         $material->delete();
 
-        return back()->with('success', 'Material deleted successfully!');
+        return back()->with('success', 'Materi berhasil dihapus!');
     }
 
     /**
@@ -158,9 +155,9 @@ class MaterialController extends Controller
         foreach ($validated['materials'] as $materialData) {
             LessonMaterial::where('id', $materialData['id'])
                 ->where('lesson_id', $lesson->id)
-                ->update(['order' => $materialData['order']]);
+                ->update(['order_index' => $materialData['order']]);
         }
 
-        return back()->with('success', 'Materials reordered successfully!');
+        return back()->with('success', 'Urutan materi berhasil diperbarui!');
     }
 }

@@ -30,10 +30,10 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900">
-                            Student Dashboard 🎓
+                            Dashboard Siswa 🎓
                         </h2>
                         <p className="mt-1 text-sm text-gray-600">
-                            Continue your learning journey and track your progress!
+                            Lanjutkan perjalanan belajar Anda dan pantau kemajuan Anda!
                         </p>
                     </div>
                     <FunButton
@@ -42,12 +42,12 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                         icon="➕"
                         onClick={() => window.location.href = '#'}
                     >
-                        Join Class
+                        Gabung Kelas
                     </FunButton>
                 </div>
             }
         >
-            <Head title="Student Dashboard" />
+            <Head title="Dashboard Siswa" />
 
             <motion.div
                 variants={containerVariants}
@@ -57,11 +57,11 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
             >
                 {/* Stats Cards */}
                 <motion.div variants={itemVariants}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Kemajuan Anda</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatsCard
                             icon="📚"
-                            title="Enrolled Classes"
+                            title="Kelas Terdaftar"
                             value={stats.total_enrolled}
                             bgGradient="from-purple-500 to-pink-500"
                             iconBg="bg-purple-100"
@@ -69,7 +69,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                         />
                         <StatsCard
                             icon="✅"
-                            title="Completed"
+                            title="Selesai"
                             value={stats.completed_lessons}
                             bgGradient="from-green-500 to-emerald-500"
                             iconBg="bg-green-100"
@@ -77,7 +77,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                         />
                         <StatsCard
                             icon="📖"
-                            title="In Progress"
+                            title="Sedang Berjalan"
                             value={stats.in_progress}
                             bgGradient="from-blue-500 to-cyan-500"
                             iconBg="bg-blue-100"
@@ -85,7 +85,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                         />
                         <StatsCard
                             icon="🏆"
-                            title="Achievements"
+                            title="Pencapaian"
                             value={stats.total_achievements}
                             bgGradient="from-orange-500 to-yellow-500"
                             iconBg="bg-orange-100"
@@ -97,9 +97,9 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                 {/* Enrolled Lessons */}
                 <motion.div variants={itemVariants}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">My Classes</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Kelas Saya</h3>
                         <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                            View All →
+                            Lihat Semua →
                         </a>
                     </div>
 
@@ -126,7 +126,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                         )}
                                         {lesson.completed && (
                                             <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                                <span>✓</span> Completed
+                                                <span>✓</span> Selesai
                                             </div>
                                         )}
                                     </div>
@@ -162,7 +162,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                         {/* Progress Bar */}
                                         <div className="mb-4">
                                             <div className="flex items-center justify-between text-sm mb-1">
-                                                <span className="text-gray-600">Progress</span>
+                                                <span className="text-gray-600">Progres</span>
                                                 <span className="font-semibold text-purple-600">
                                                     {lesson.progress}%
                                                 </span>
@@ -184,7 +184,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                             className="w-full"
                                             onClick={() => window.location.href = '#'}
                                         >
-                                            {lesson.completed ? 'Review' : 'Continue Learning'}
+                                            {lesson.completed ? 'Tinjau Ulang' : 'Lanjutkan Belajar'}
                                         </FunButton>
                                     </div>
                                 </motion.div>
@@ -193,9 +193,9 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                     ) : (
                         <EmptyState
                             icon="🎒"
-                            title="No classes enrolled yet"
-                            description="Join your first class using a class code provided by your teacher!"
-                            actionLabel="Join a Class"
+                            title="Belum terdaftar di kelas manapun"
+                            description="Gabung kelas pertama Anda menggunakan kode kelas dari guru!"
+                            actionLabel="Gabung Kelas"
                             actionIcon="➕"
                             onAction={() => window.location.href = '#'}
                         />
@@ -206,9 +206,9 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                 {recentAchievements.length > 0 && (
                     <motion.div variants={itemVariants}>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Recent Achievements 🏆</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">Pencapaian Terbaru 🏆</h3>
                             <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                View All →
+                                Lihat Semua →
                             </a>
                         </div>
 
@@ -237,7 +237,7 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
 
                 {/* Quick Actions */}
                 <motion.div variants={itemVariants}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <motion.a
                             href="#"
@@ -249,8 +249,8 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                     📝
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Take Quiz</h4>
-                                    <p className="text-sm text-gray-600">Test your knowledge</p>
+                                    <h4 className="font-semibold text-gray-900">Kerjakan Kuis</h4>
+                                    <p className="text-sm text-gray-600">Uji pengetahuan Anda</p>
                                 </div>
                             </div>
                         </motion.a>
@@ -265,8 +265,8 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                     📖
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Study Materials</h4>
-                                    <p className="text-sm text-gray-600">Access lesson resources</p>
+                                    <h4 className="font-semibold text-gray-900">Materi Belajar</h4>
+                                    <p className="text-sm text-gray-600">Akses sumber belajar</p>
                                 </div>
                             </div>
                         </motion.a>
@@ -281,8 +281,8 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                                     🎓
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Certificates</h4>
-                                    <p className="text-sm text-gray-600">View your achievements</p>
+                                    <h4 className="font-semibold text-gray-900">Sertifikat</h4>
+                                    <p className="text-sm text-gray-600">Lihat pencapaian Anda</p>
                                 </div>
                             </div>
                         </motion.a>

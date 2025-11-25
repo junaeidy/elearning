@@ -1,5 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import Notification from '@/Components/Notification';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,20 +15,17 @@ export default function AuthenticatedLayout({ header, children }) {
         if (user.role === 'teacher') {
             return [
                 { name: 'Dashboard', icon: '📊', href: route('teacher.dashboard'), active: route().current('teacher.dashboard') },
-                { name: 'My Lessons', icon: '📚', href: route('teacher.lessons.index'), active: route().current('teacher.lessons.*') },
-                { name: 'Students', icon: '👥', href: route('teacher.students.index'), active: route().current('teacher.students.*') },
-                { name: 'Quizzes', icon: '📝', href: '#', active: false },
-                { name: 'Materials', icon: '📁', href: '#', active: false },
-                { name: 'Analytics', icon: '📈', href: '#', active: false },
+                { name: 'Pelajaran Saya', icon: '📚', href: route('teacher.lessons.index'), active: route().current('teacher.lessons.*') || route().current('teacher.quizzes.*') },
+                { name: 'Siswa', icon: '👥', href: route('teacher.students.index'), active: route().current('teacher.students.*') },
+                { name: 'Analitik', icon: '📈', href: '#', active: false },
             ];
         } else {
             return [
                 { name: 'Dashboard', icon: '🏠', href: route('student.dashboard'), active: route().current('student.dashboard') },
-                { name: 'My Classes', icon: '📚', href: '#', active: false },
-                { name: 'Join Class', icon: '➕', href: '#', active: false },
-                { name: 'My Quizzes', icon: '📝', href: '#', active: false },
-                { name: 'Achievements', icon: '🏆', href: '#', active: false },
-                { name: 'Certificates', icon: '🎓', href: '#', active: false },
+                { name: 'Kelas Saya', icon: '📚', href: '#', active: route().current('student.lessons.*') || route().current('student.quizzes.*') },
+                { name: 'Gabung Kelas', icon: '➕', href: '#', active: false },
+                { name: 'Pencapaian', icon: '🏆', href: '#', active: false },
+                { name: 'Sertifikat', icon: '🎓', href: '#', active: false },
             ];
         }
     };
@@ -36,6 +34,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+            <Notification />
             {/* Top Navbar */}
             <nav className="bg-white/80 backdrop-blur-lg border-b border-purple-100 sticky top-0 z-50 shadow-lg">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -66,7 +65,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         {/* Desktop Navigation */}
                         <div className="hidden lg:flex items-center gap-2">
-                            {menuItems.slice(0, 4).map((item, index) => (
+                            {menuItems.slice(0, 3).map((item, index) => (
                                 <Link
                                     key={index}
                                     href={item.href}
@@ -115,13 +114,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <p className="text-xs text-gray-500">{user.email}</p>
                                     </div>
                                     <Dropdown.Link href={route('profile.edit')}>
-                                        <span className="mr-2">👤</span> Profile
+                                        <span className="mr-2">👤</span> Profil
                                     </Dropdown.Link>
                                     <Dropdown.Link href="#">
-                                        <span className="mr-2">⚙️</span> Settings
+                                        <span className="mr-2">⚙️</span> Pengaturan
                                     </Dropdown.Link>
                                     <Dropdown.Link href={route('logout')} method="post" as="button">
-                                        <span className="mr-2">🚪</span> Logout
+                                        <span className="mr-2">🚪</span> Keluar
                                     </Dropdown.Link>
                                 </Dropdown.Content>
                             </Dropdown>
@@ -216,13 +215,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                                 <div className="text-center md:text-left">
                                     <p className="text-sm text-gray-600">
-                                        © 2025 E-Learning Platform. Made with <span className="text-red-500">❤️</span> for education
+                                        © 2025 Platform E-Learning. Dibuat dengan <span className="text-red-500">❤️</span> untuk pendidikan
                                     </p>
                                 </div>
                                 <div className="flex gap-4">
-                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Help</a>
-                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Privacy</a>
-                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Terms</a>
+                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Bantuan</a>
+                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Privasi</a>
+                                    <a href="#" className="text-sm text-gray-600 hover:text-purple-600 transition-colors">Ketentuan</a>
                                 </div>
                             </div>
                         </div>

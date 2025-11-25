@@ -31,17 +31,17 @@ export default function Index({ lessons, filters }) {
     };
 
     const handleDelete = (lessonId) => {
-        if (confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
+        if (confirm('Apakah Anda yakin ingin menghapus pelajaran ini? Tindakan ini tidak dapat dibatalkan.')) {
             router.delete(route('teacher.lessons.destroy', lessonId));
         }
     };
 
     const getStatusBadge = (status) => {
         const badges = {
-            active: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', label: 'Active' },
+            active: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', label: 'Aktif' },
             draft: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200', label: 'Draft' },
-            inactive: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200', label: 'Inactive' },
-            completed: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', label: 'Completed' },
+            inactive: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200', label: 'Tidak Aktif' },
+            completed: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', label: 'Selesai' },
         };
         const badge = badges[status] || badges.draft;
         return (
@@ -70,21 +70,21 @@ export default function Index({ lessons, filters }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900">
-                            My Lessons 📚
+                            Pelajaran Saya 📚
                         </h2>
                         <p className="mt-1 text-sm text-gray-600">
-                            Manage all your lessons in one place
+                            Kelola semua pelajaran Anda di satu tempat
                         </p>
                     </div>
                     <Link href={route('teacher.lessons.create')}>
                         <FunButton variant="primary" size="lg" icon="➕">
-                            Create Lesson
+                            Buat Pelajaran
                         </FunButton>
                     </Link>
                 </div>
             }
         >
-            <Head title="My Lessons" />
+            <Head title="Pelajaran Saya" />
 
             <div className="space-y-6">
                 {/* Search and Filter */}
@@ -98,14 +98,14 @@ export default function Index({ lessons, filters }) {
                             {/* Search */}
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    🔍 Search
+                                    🔍 Cari
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search by title, description, code..."
+                                        placeholder="Cari berdasarkan judul, deskripsi, kode..."
                                         className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                     />
                                     <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
@@ -122,24 +122,24 @@ export default function Index({ lessons, filters }) {
                                     onChange={(e) => setStatus(e.target.value)}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 >
-                                    <option value="">All Status</option>
-                                    <option value="active">Active</option>
+                                    <option value="">Semua Status</option>
+                                    <option value="active">Aktif</option>
                                     <option value="draft">Draft</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="completed">Completed</option>
+                                    <option value="inactive">Tidak Aktif</option>
+                                    <option value="completed">Selesai</option>
                                 </select>
                             </div>
 
                             {/* Subject Filter */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    📖 Subject
+                                    📖 Mata Pelajaran
                                 </label>
                                 <input
                                     type="text"
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
-                                    placeholder="e.g., Math, Science"
+                                    placeholder="contoh: Matematika, IPA"
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
                             </div>
@@ -147,7 +147,7 @@ export default function Index({ lessons, filters }) {
 
                         <div className="flex gap-3">
                             <FunButton type="submit" variant="primary" size="md">
-                                Apply Filters
+                                Terapkan Filter
                             </FunButton>
                             <FunButton type="button" variant="secondary" size="md" onClick={handleReset}>
                                 Reset
@@ -160,9 +160,9 @@ export default function Index({ lessons, filters }) {
                 {lessons.data.length === 0 ? (
                     <EmptyState
                         icon="📚"
-                        title="No lessons yet"
-                        description="Create your first lesson to get started with teaching!"
-                        actionLabel="Create Lesson"
+                        title="Belum ada pelajaran"
+                        description="Buat pelajaran pertama Anda untuk mulai mengajar!"
+                        actionLabel="Buat Pelajaran"
                         actionUrl={route('teacher.lessons.create')}
                     />
                 ) : (
@@ -214,13 +214,13 @@ export default function Index({ lessons, filters }) {
                                                         🔑 {lesson.lesson_code}
                                                     </span>
                                                     <span className="flex items-center gap-1">
-                                                        👥 {lesson.enrolled_count}/{lesson.max_students} students
+                                                        👥 {lesson.enrolled_count}/{lesson.max_students} siswa
                                                     </span>
                                                     <span className="flex items-center gap-1">
-                                                        📁 {lesson.materials_count} materials
+                                                        📁 {lesson.materials_count} materi
                                                     </span>
                                                     <span className="flex items-center gap-1">
-                                                        📝 {lesson.quizzes_count} quizzes
+                                                        📝 {lesson.quizzes_count} kuis
                                                     </span>
                                                 </div>
                                             </div>
@@ -230,7 +230,7 @@ export default function Index({ lessons, filters }) {
                                                 <Link href={route('teacher.lessons.show', lesson.id)}>
                                                     <button
                                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                        title="View"
+                                                        title="Lihat"
                                                     >
                                                         <EyeIcon className="w-5 h-5" />
                                                     </button>
@@ -246,7 +246,7 @@ export default function Index({ lessons, filters }) {
                                                 <button
                                                     onClick={() => handleDelete(lesson.id)}
                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
+                                                    title="Hapus"
                                                 >
                                                     <TrashIcon className="w-5 h-5" />
                                                 </button>

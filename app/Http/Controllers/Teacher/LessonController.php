@@ -101,7 +101,7 @@ class LessonController extends Controller
         $lesson = Lesson::create($validated);
 
         return redirect()->route('teacher.lessons.show', $lesson)
-            ->with('success', 'Lesson created successfully!');
+            ->with('success', 'Pelajaran berhasil dibuat!');
     }
 
     /**
@@ -114,10 +114,12 @@ class LessonController extends Controller
 
         $lesson->load([
             'materials' => function ($query) {
-                $query->orderBy('order', 'asc');
+                $query->orderBy('order_index', 'asc');
             },
             'enrollments.student',
-            'quizzes'
+            'quizzes' => function ($query) {
+                $query->withCount(['questions', 'attempts']);
+            }
         ]);
 
         // Add computed properties
@@ -173,12 +175,15 @@ class LessonController extends Controller
                 Storage::disk('public')->delete($lesson->cover_image);
             }
             $validated['cover_image'] = $request->file('cover_image')->store('lesson-covers', 'public');
+        } else {
+            // Remove cover_image from validated data if no new file uploaded
+            unset($validated['cover_image']);
         }
 
         $lesson->update($validated);
 
         return redirect()->route('teacher.lessons.show', $lesson)
-            ->with('success', 'Lesson updated successfully!');
+            ->with('success', 'Pelajaran berhasil diperbarui!');
     }
 
     /**
@@ -204,7 +209,7 @@ class LessonController extends Controller
         $lesson->delete();
 
         return redirect()->route('teacher.lessons.index')
-            ->with('success', 'Lesson deleted successfully!');
+            ->with('success', 'Pelajaran berhasil dihapus!');
     }
 
     /**
@@ -228,6 +233,6 @@ class LessonController extends Controller
         $newStatus = $lesson->status === 'active' ? 'inactive' : 'active';
         $lesson->update(['status' => $newStatus]);
 
-        return back()->with('success', 'Lesson status updated successfully!');
+        return back()->with('success', 'Status pelajaran berhasil diperbarui!');
     }
 }

@@ -55,10 +55,10 @@ export default function Edit({ lesson }) {
             header={
                 <div>
                     <h2 className="text-3xl font-bold text-gray-900">
-                        Edit Lesson ✏️
+                        Edit Pelajaran ✏️
                     </h2>
                     <p className="mt-1 text-sm text-gray-600">
-                        Update your lesson information
+                        Perbarui informasi pelajaran Anda
                     </p>
                 </div>
             }
@@ -74,20 +74,20 @@ export default function Edit({ lesson }) {
                     {/* Main Information Card */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
                         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            📝 Basic Information
+                            📝 Informasi Dasar
                         </h3>
 
                         <div className="space-y-6">
                             {/* Title */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Lesson Title *
+                                    Judul Pelajaran *
                                 </label>
                                 <input
                                     type="text"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
-                                    placeholder="e.g., Introduction to Mathematics"
+                                    placeholder="contoh: Pengenalan Matematika"
                                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                                         errors.title ? 'border-red-500' : 'border-gray-300'
                                     }`}
@@ -101,12 +101,12 @@ export default function Edit({ lesson }) {
                             {/* Description */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Description *
+                                    Deskripsi *
                                 </label>
                                 <textarea
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Describe what students will learn in this lesson..."
+                                    placeholder="Deskripsikan apa yang akan dipelajari siswa dalam pelajaran ini..."
                                     rows="5"
                                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                                         errors.description ? 'border-red-500' : 'border-gray-300'
@@ -122,13 +122,13 @@ export default function Edit({ lesson }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Subject *
+                                        Mata Pelajaran *
                                     </label>
                                     <input
                                         type="text"
                                         value={data.subject}
                                         onChange={(e) => setData('subject', e.target.value)}
-                                        placeholder="e.g., Mathematics, Science"
+                                        placeholder="contoh: Matematika, IPA"
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                                             errors.subject ? 'border-red-500' : 'border-gray-300'
                                         }`}
@@ -141,7 +141,7 @@ export default function Edit({ lesson }) {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Lesson Code *
+                                        Kode Pelajaran *
                                     </label>
                                     <div className="flex gap-2">
                                         <input
@@ -158,7 +158,7 @@ export default function Edit({ lesson }) {
                                             type="button"
                                             onClick={generateNewCode}
                                             className="px-4 py-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium"
-                                            title="Generate New Code"
+                                            title="Buat Kode Baru"
                                         >
                                             <KeyIcon className="w-5 h-5" />
                                         </button>
@@ -172,7 +172,7 @@ export default function Edit({ lesson }) {
                             {/* Cover Image */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Cover Image
+                                    Gambar Sampul
                                 </label>
                                 <div className="flex items-start gap-4">
                                     <div className="flex-1">
@@ -186,10 +186,10 @@ export default function Edit({ lesson }) {
                                             <div className="text-center">
                                                 <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
                                                 <p className="mt-2 text-sm text-gray-600">
-                                                    Click to upload or drag and drop
+                                                    Klik untuk mengunggah atau seret dan lepas
                                                 </p>
                                                 <p className="text-xs text-gray-500">
-                                                    PNG, JPG, GIF up to 2MB
+                                                    PNG, JPG, GIF hingga 2MB
                                                 </p>
                                             </div>
                                         </div>
@@ -214,7 +214,7 @@ export default function Edit({ lesson }) {
                     {/* Schedule Card */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
                         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            📅 Schedule & Settings
+                            📅 Jadwal & Pengaturan
                         </h3>
 
                         <div className="space-y-6">
@@ -222,7 +222,7 @@ export default function Edit({ lesson }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Start Date *
+                                        Tanggal Mulai *
                                     </label>
                                     <input
                                         type="date"
@@ -240,7 +240,7 @@ export default function Edit({ lesson }) {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        End Date *
+                                        Tanggal Selesai *
                                     </label>
                                     <input
                                         type="date"
@@ -272,9 +272,9 @@ export default function Edit({ lesson }) {
                                         required
                                     >
                                         <option value="draft">Draft</option>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                        <option value="completed">Completed</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Tidak Aktif</option>
+                                        <option value="completed">Selesai</option>
                                     </select>
                                     {errors.status && (
                                         <p className="mt-1 text-sm text-red-600">{errors.status}</p>
@@ -283,7 +283,7 @@ export default function Edit({ lesson }) {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Max Students *
+                                        Maksimal Siswa *
                                     </label>
                                     <input
                                         type="number"
@@ -308,7 +308,7 @@ export default function Edit({ lesson }) {
                     <div className="flex gap-4 justify-end">
                         <Link href={route('teacher.lessons.show', lesson.id)}>
                             <FunButton type="button" variant="secondary" size="lg">
-                                Cancel
+                                Batal
                             </FunButton>
                         </Link>
                         <FunButton
@@ -318,7 +318,7 @@ export default function Edit({ lesson }) {
                             icon="💾"
                             disabled={processing}
                         >
-                            {processing ? 'Saving...' : 'Save Changes'}
+                            {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                         </FunButton>
                     </div>
                 </form>

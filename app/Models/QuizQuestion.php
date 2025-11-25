@@ -14,12 +14,12 @@ class QuizQuestion extends Model
         'question_text',
         'question_type',
         'points',
-        'order',
+        'order_index',
     ];
 
     protected $casts = [
         'points' => 'integer',
-        'order' => 'integer',
+        'order_index' => 'integer',
     ];
 
     // Relationships
@@ -30,6 +30,6 @@ class QuizQuestion extends Model
 
     public function options()
     {
-        return $this->hasMany(QuizQuestionOption::class);
+        return $this->hasMany(QuizQuestionOption::class, 'question_id');
     }
 }

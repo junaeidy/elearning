@@ -65,7 +65,7 @@ export default function Show({ lesson }) {
     };
 
     const handleDeleteMaterial = (materialId) => {
-        if (confirm('Are you sure you want to delete this material?')) {
+        if (confirm('Apakah Anda yakin ingin menghapus materi ini?')) {
             router.delete(route('teacher.lessons.materials.destroy', [lesson.id, materialId]));
         }
     };
@@ -76,10 +76,10 @@ export default function Show({ lesson }) {
 
     const getStatusBadge = (status) => {
         const badges = {
-            active: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', label: 'Active' },
+            active: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200', label: 'Aktif' },
             draft: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200', label: 'Draft' },
-            inactive: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200', label: 'Inactive' },
-            completed: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', label: 'Completed' },
+            inactive: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-200', label: 'Tidak Aktif' },
+            completed: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200', label: 'Selesai' },
         };
         const badge = badges[status] || badges.draft;
         return (
@@ -122,11 +122,11 @@ export default function Show({ lesson }) {
                             size="md"
                             onClick={handleToggleStatus}
                         >
-                            {lesson.status === 'active' ? 'Deactivate' : 'Activate'}
+                            {lesson.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
                         </FunButton>
                         <Link href={route('teacher.lessons.edit', lesson.id)}>
                             <FunButton variant="primary" size="md" icon="✏️">
-                                Edit Lesson
+                                Edit Pelajaran
                             </FunButton>
                         </Link>
                     </div>
@@ -158,7 +158,7 @@ export default function Show({ lesson }) {
 
                         {/* Info */}
                         <div className="flex-1 p-8">
-                            <h3 className="text-lg font-bold text-gray-900 mb-3">Description</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-3">Deskripsi</h3>
                             <p className="text-gray-600 mb-6 whitespace-pre-line">
                                 {lesson.description}
                             </p>
@@ -168,25 +168,25 @@ export default function Show({ lesson }) {
                                     <div className="text-2xl font-bold text-purple-600">
                                         {lesson.enrolled_count}/{lesson.max_students}
                                     </div>
-                                    <div className="text-xs text-gray-600 mt-1">Students</div>
+                                    <div className="text-xs text-gray-600 mt-1">Siswa</div>
                                 </div>
                                 <div className="bg-blue-50 rounded-lg p-4">
                                     <div className="text-2xl font-bold text-blue-600">
                                         {lesson.materials_count}
                                     </div>
-                                    <div className="text-xs text-gray-600 mt-1">Materials</div>
+                                    <div className="text-xs text-gray-600 mt-1">Materi</div>
                                 </div>
                                 <div className="bg-green-50 rounded-lg p-4">
                                     <div className="text-2xl font-bold text-green-600">
                                         {lesson.quizzes_count}
                                     </div>
-                                    <div className="text-xs text-gray-600 mt-1">Quizzes</div>
+                                    <div className="text-xs text-gray-600 mt-1">Kuis</div>
                                 </div>
                                 <div className="bg-orange-50 rounded-lg p-4">
                                     <div className="text-2xl font-bold text-orange-600">
                                         {new Date(lesson.start_date).toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })}
                                     </div>
-                                    <div className="text-xs text-gray-600 mt-1">Start Date</div>
+                                    <div className="text-xs text-gray-600 mt-1">Tanggal Mulai</div>
                                 </div>
                             </div>
                         </div>
@@ -202,7 +202,7 @@ export default function Show({ lesson }) {
                 >
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-xl font-bold text-gray-900">
-                            📁 Learning Materials ({lesson.materials.length})
+                            📁 Materi Pembelajaran ({lesson.materials.length})
                         </h3>
                         <FunButton
                             variant="primary"
@@ -210,7 +210,7 @@ export default function Show({ lesson }) {
                             icon="➕"
                             onClick={() => setShowUploadModal(true)}
                         >
-                            Upload Material
+                            Unggah Materi
                         </FunButton>
                     </div>
 
@@ -218,17 +218,17 @@ export default function Show({ lesson }) {
                         <div className="text-center py-12">
                             <div className="text-6xl mb-4">📂</div>
                             <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                                No materials yet
+                                Belum ada materi
                             </h4>
                             <p className="text-gray-600 mb-4">
-                                Upload your first learning material to get started
+                                Unggah materi pembelajaran pertama Anda untuk memulai
                             </p>
                             <FunButton
                                 variant="primary"
                                 size="md"
                                 onClick={() => setShowUploadModal(true)}
                             >
-                                Upload Material
+                                Unggah Materi
                             </FunButton>
                         </div>
                     ) : (
@@ -268,7 +268,7 @@ export default function Show({ lesson }) {
                                         >
                                             <button className="w-full px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium flex items-center justify-center gap-2">
                                                 <ArrowDownTrayIcon className="w-4 h-4" />
-                                                Download
+                                                Unduh
                                             </button>
                                         </a>
                                         <button
@@ -284,6 +284,113 @@ export default function Show({ lesson }) {
                     )}
                 </motion.div>
 
+                {/* Quizzes Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-gray-900">
+                            📝 Kuis ({lesson.quizzes_count})
+                        </h3>
+                        <Link href={route('teacher.quizzes.index', lesson.id)}>
+                            <FunButton variant="primary" size="md" icon="📝">
+                                Kelola Kuis
+                            </FunButton>
+                        </Link>
+                    </div>
+
+                    {lesson.quizzes && lesson.quizzes.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="text-6xl mb-4">📝</div>
+                            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                                Belum ada kuis
+                            </h4>
+                            <p className="text-gray-600 mb-4">
+                                Buat kuis untuk menilai pemahaman siswa Anda
+                            </p>
+                            <Link href={route('teacher.quizzes.create', lesson.id)}>
+                                <FunButton variant="primary" size="md">
+                                    Buat Kuis Pertama
+                                </FunButton>
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {lesson.quizzes && lesson.quizzes.map((quiz, index) => (
+                                <motion.div
+                                    key={quiz.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-100 rounded-xl p-6 hover:shadow-md transition-all"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-gray-900 mb-2 text-lg">
+                                                {quiz.title}
+                                            </h4>
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                    quiz.is_active 
+                                                        ? 'bg-green-100 text-green-700' 
+                                                        : 'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {quiz.is_active ? '✓ Aktif' : '○ Tidak Aktif'}
+                                                </span>
+                                                <span className="px-2 py-1 bg-white rounded-full text-xs text-gray-600">
+                                                    ⏱ {quiz.duration_minutes} menit
+                                                </span>
+                                                <span className="px-2 py-1 bg-white rounded-full text-xs text-gray-600">
+                                                    🎯 {quiz.passing_score}%
+                                                </span>
+                                            </div>
+                                            {quiz.description && (
+                                                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                                    {quiz.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+                                        <div className="bg-white rounded-lg p-2 text-center">
+                                            <div className="font-bold text-blue-600">
+                                                {quiz.questions_count || 0}
+                                            </div>
+                                            <div className="text-xs text-gray-500">Pertanyaan</div>
+                                        </div>
+                                        <div className="bg-white rounded-lg p-2 text-center">
+                                            <div className="font-bold text-purple-600">
+                                                {quiz.attempts_count || 0}
+                                            </div>
+                                            <div className="text-xs text-gray-500">Percobaan</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Link
+                                            href={route('teacher.quizzes.show', [lesson.id, quiz.id])}
+                                            className="flex-1"
+                                        >
+                                            <button className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                                Lihat Detail
+                                            </button>
+                                        </Link>
+                                        <Link href={route('teacher.quizzes.edit', [lesson.id, quiz.id])}>
+                                            <button className="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors">
+                                                <PencilIcon className="w-4 h-4" />
+                                            </button>
+                                        </Link>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
+
                 {/* Enrolled Students Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -292,17 +399,17 @@ export default function Show({ lesson }) {
                     className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
                 >
                     <h3 className="text-xl font-bold text-gray-900 mb-6">
-                        👥 Enrolled Students ({lesson.enrollments.length})
+                        👥 Siswa Terdaftar ({lesson.enrollments.length})
                     </h3>
 
                     {lesson.enrollments.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-6xl mb-4">👥</div>
                             <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                                No students enrolled yet
+                                Belum ada siswa terdaftar
                             </h4>
                             <p className="text-gray-600">
-                                Share the lesson code <strong>{lesson.lesson_code}</strong> with students
+                                Bagikan kode pelajaran <strong>{lesson.lesson_code}</strong> ke siswa
                             </p>
                         </div>
                     ) : (
@@ -311,16 +418,16 @@ export default function Show({ lesson }) {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Student
+                                            Siswa
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Email
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Progress
+                                            Progres
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Enrolled At
+                                            Terdaftar Pada
                                         </th>
                                     </tr>
                                 </thead>
@@ -377,7 +484,7 @@ export default function Show({ lesson }) {
                     >
                         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                             <h3 className="text-2xl font-bold text-gray-900">
-                                📤 Upload Material
+                                📤 Unggah Materi
                             </h3>
                             <button
                                 onClick={() => setShowUploadModal(false)}
@@ -391,13 +498,13 @@ export default function Show({ lesson }) {
                             {/* Material Title */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Material Title *
+                                    Judul Materi *
                                 </label>
                                 <input
                                     type="text"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
-                                    placeholder="e.g., Chapter 1 - Introduction"
+                                    placeholder="contoh: Bab 1 - Pengenalan"
                                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
                                         errors.title ? 'border-red-500' : 'border-gray-300'
                                     }`}
@@ -411,12 +518,12 @@ export default function Show({ lesson }) {
                             {/* Description */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Description (Optional)
+                                    Deskripsi (Opsional)
                                 </label>
                                 <textarea
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Brief description of this material..."
+                                    placeholder="Deskripsi singkat tentang materi ini..."
                                     rows="3"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
@@ -425,7 +532,7 @@ export default function Show({ lesson }) {
                             {/* Material Type */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Material Type *
+                                    Tipe Materi *
                                 </label>
                                 <select
                                     value={data.type}
@@ -435,12 +542,12 @@ export default function Show({ lesson }) {
                                     }`}
                                     required
                                 >
-                                    <option value="pdf">📄 PDF Document</option>
+                                    <option value="pdf">📄 Dokumen PDF</option>
                                     <option value="video">🎥 Video</option>
-                                    <option value="image">🖼️ Image</option>
+                                    <option value="image">🖼️ Gambar</option>
                                     <option value="audio">🔊 Audio</option>
-                                    <option value="slide">📊 Presentation</option>
-                                    <option value="document">📝 Document</option>
+                                    <option value="slide">📊 Presentasi</option>
+                                    <option value="document">📝 Dokumen</option>
                                 </select>
                                 {errors.type && (
                                     <p className="mt-1 text-sm text-red-600">{errors.type}</p>
@@ -480,10 +587,10 @@ export default function Show({ lesson }) {
                                                 </span>
                                             ) : (
                                                 <>
-                                                    Click to upload or drag and drop
+                                                    Klik untuk mengunggah atau seret dan lepas
                                                     <br />
                                                     <span className="text-xs text-gray-500">
-                                                        Max file size: 100MB
+                                                        Ukuran file maksimal: 100MB
                                                     </span>
                                                 </>
                                             )}
@@ -503,7 +610,7 @@ export default function Show({ lesson }) {
                                     size="lg"
                                     onClick={() => setShowUploadModal(false)}
                                 >
-                                    Cancel
+                                    Batal
                                 </FunButton>
                                 <FunButton
                                     type="submit"
@@ -512,7 +619,7 @@ export default function Show({ lesson }) {
                                     icon="📤"
                                     disabled={processing}
                                 >
-                                    {processing ? 'Uploading...' : 'Upload Material'}
+                                    {processing ? 'Mengunggah...' : 'Unggah Materi'}
                                 </FunButton>
                             </div>
                         </form>

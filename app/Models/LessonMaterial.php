@@ -12,17 +12,17 @@ class LessonMaterial extends Model
     protected $fillable = [
         'lesson_id',
         'title',
-        'description',
         'type',
         'file_path',
         'file_size',
         'mime_type',
-        'order',
+        'order_index',
+        'duration',
     ];
 
     protected $casts = [
         'file_size' => 'integer',
-        'order' => 'integer',
+        'order_index' => 'integer',
     ];
 
     // Relationships
