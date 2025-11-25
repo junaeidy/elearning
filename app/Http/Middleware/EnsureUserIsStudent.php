@@ -8,13 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsStudent
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        if (!$request->user() || !$request->user()->isStudent()) {
+            abort(403, 'Akses ditolak. Hanya untuk siswa.');
+        }
+
         return $next($request);
     }
 }

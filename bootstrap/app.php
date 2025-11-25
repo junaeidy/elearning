@@ -16,7 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // Register custom middleware aliases
+        $middleware->alias([
+            'teacher' => \App\Http\Middleware\EnsureUserIsTeacher::class,
+            'student' => \App\Http\Middleware\EnsureUserIsStudent::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

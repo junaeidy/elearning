@@ -17,6 +17,7 @@ class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
+     * HANYA untuk guru
      */
     public function create(): Response
     {
@@ -25,27 +26,34 @@ class RegisteredUserController extends Controller
 
     /**
      * Handle an incoming registration request.
+     * HANYA untuk guru
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'username' => 'required|string|max:50|unique:'.User::class,
+            'full_name' => 'required|string|max:100',
+            'email' => 'nullable|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'username' => $request->username,
+            'name' => $request->full_name,
+            'full_name' => $request->full_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'teacher', // SELALU teacher untuk registrasi mandiri
+            'is_active' => true,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('teacher.dashboard')
+            ->with('success', 'Akun guru berhasil dibuat!');
     }
 }
