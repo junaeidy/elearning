@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Events\UserDeactivated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -74,6 +76,10 @@ class StudentController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // Check if status is being changed to inactive
+        $wasActive = $student->is_active;
+        $willBeInactive = $request->has('is_active') && !$request->is_active;
+
         $data = [
             'username' => $request->username,
             'name' => $request->full_name,
@@ -87,8 +93,23 @@ class StudentController extends Controller
 
         $student->update($data);
 
+        // If user was active and now inactive, force logout
+        if ($wasActive && $willBeInactive) {
+            // Delete all sessions for this user
+            DB::table('sessions')
+                ->where('user_id', $student->id)
+                ->delete();
+
+            // Broadcast event for real-time logout (optional, for future use)
+            event(new UserDeactivated($student));
+        }
+
+        $message = $willBeInactive 
+            ? 'Data siswa berhasil diupdate dan akun telah dinonaktifkan!' 
+            : 'Data siswa berhasil diupdate!';
+
         return redirect()->route('teacher.students.index')
-            ->with('success', 'Data siswa berhasil diupdate!');
+            ->with('success', $message);
     }
 
     public function destroy(User $student)

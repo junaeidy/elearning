@@ -9,6 +9,7 @@ use App\Http\Controllers\Teacher\QuizController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\QuizAttemptController;
+use App\Http\Controllers\Student\LessonController as StudentLessonController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -70,6 +71,14 @@ Route::middleware(['auth', 'teacher'])->prefix('teacher')->name('teacher.')->gro
 // Student Routes
 Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+    
+    // Lesson Management
+    Route::get('/lessons', [StudentLessonController::class, 'index'])->name('lessons.index');
+    Route::get('/lessons/join', [StudentLessonController::class, 'showJoinForm'])->name('lessons.join');
+    Route::post('/lessons/join', [StudentLessonController::class, 'join']);
+    Route::get('/lessons/{lesson}', [StudentLessonController::class, 'show'])->name('lessons.show');
+    Route::post('/lessons/{lesson}/update-progress', [StudentLessonController::class, 'updateProgress'])->name('lessons.update-progress');
+    Route::delete('/lessons/{lesson}/leave', [StudentLessonController::class, 'leave'])->name('lessons.leave');
     
     // Quiz Attempts
     Route::get('lessons/{lesson}/quizzes', [QuizAttemptController::class, 'index'])->name('quizzes.index');

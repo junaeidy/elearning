@@ -22,8 +22,8 @@ export default function AuthenticatedLayout({ header, children }) {
         } else {
             return [
                 { name: 'Dashboard', icon: '🏠', href: route('student.dashboard'), active: route().current('student.dashboard') },
-                { name: 'Kelas Saya', icon: '📚', href: '#', active: route().current('student.lessons.*') || route().current('student.quizzes.*') },
-                { name: 'Gabung Kelas', icon: '➕', href: '#', active: false },
+                { name: 'Kelas Saya', icon: '📚', href: route('student.lessons.index'), active: route().current('student.lessons.index') || route().current('student.lessons.show') },
+                { name: 'Gabung Kelas', icon: '➕', href: route('student.lessons.join'), active: route().current('student.lessons.join') },
                 { name: 'Pencapaian', icon: '🏆', href: '#', active: false },
                 { name: 'Sertifikat', icon: '🎓', href: '#', active: false },
             ];

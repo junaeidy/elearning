@@ -16,19 +16,10 @@ export default function Login({ status, canResetPassword }) {
         }
     }, [status]);
 
-    useEffect(() => {
-        if (errors.username || errors.password) {
-            toast.error('Username atau password salah!');
-        }
-    }, [errors]);
-
     const submit = (e) => {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
-            onError: () => {
-                toast.error('Login gagal! Periksa kembali username dan password.');
-            },
         });
     };
 
@@ -45,8 +36,7 @@ export default function Login({ status, canResetPassword }) {
                 animate={{ scale: 1, opacity: 1 }}
                 className="w-full max-w-md"
             >
-                <div className="bg-white rounded-3xl shadow-2xl p-8">
-                    {/* Logo & Title */}
+                <div className="bg-white rounded-3xl shadow-2xl p-8 overflow-hidden">{/* Logo & Title */}
                     <div className="text-center mb-8">
                         <motion.div 
                             animate={{ rotate: [0, 10, -10, 0] }}
@@ -112,7 +102,7 @@ export default function Login({ status, canResetPassword }) {
                             />
                             {errors.username && (
                                 <label className="label">
-                                    <span className="label-text-alt text-error">{errors.username}</span>
+                                    <span className="label-text-alt text-error text-sm break-words">{errors.username}</span>
                                 </label>
                             )}
                         </div>
@@ -132,7 +122,7 @@ export default function Login({ status, canResetPassword }) {
                             />
                             {errors.password && (
                                 <label className="label">
-                                    <span className="label-text-alt text-error">{errors.password}</span>
+                                    <span className="label-text-alt text-error text-sm break-words">{errors.password}</span>
                                 </label>
                             )}
                         </div>

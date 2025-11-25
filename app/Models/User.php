@@ -87,6 +87,11 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {
+            // Check if avatar is already a full URL (from social login)
+            if (filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+                return $this->avatar;
+            }
+            // Otherwise, it's a local storage path
             return asset('storage/' . $this->avatar);
         }
         

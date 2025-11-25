@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import StatsCard from '@/Components/StatsCard';
 import EmptyState from '@/Components/EmptyState';
 import FunButton from '@/Components/FunButton';
@@ -36,14 +36,15 @@ export default function Dashboard({ enrolledLessons, recentAchievements, stats }
                             Lanjutkan perjalanan belajar Anda dan pantau kemajuan Anda!
                         </p>
                     </div>
-                    <FunButton
-                        variant="accent"
-                        size="lg"
-                        icon="➕"
-                        onClick={() => window.location.href = '#'}
-                    >
-                        Gabung Kelas
-                    </FunButton>
+                    <Link href={route('student.lessons.join')}>
+                        <FunButton
+                            variant="accent"
+                            size="lg"
+                            icon="➕"
+                        >
+                            Gabung Kelas
+                        </FunButton>
+                    </Link>
                 </div>
             }
         >
