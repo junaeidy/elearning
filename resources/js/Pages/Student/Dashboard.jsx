@@ -1,43 +1,294 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import toast from 'react-hot-toast';
-import { useEffect } from 'react';
+import StatsCard from '@/Components/StatsCard';
+import EmptyState from '@/Components/EmptyState';
+import FunButton from '@/Components/FunButton';
+import { motion } from 'framer-motion';
 
-export default function StudentDashboard({ auth, flash }) {
-    useEffect(() => {
-        if (flash?.success) {
-            toast.success(flash.success);
+export default function Dashboard({ enrolledLessons, recentAchievements, stats }) {
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
         }
-    }, [flash]);
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard Siswa
-                </h2>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl font-bold text-gray-900">
+                            Student Dashboard 🎓
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Continue your learning journey and track your progress!
+                        </p>
+                    </div>
+                    <FunButton
+                        variant="accent"
+                        size="lg"
+                        icon="➕"
+                        onClick={() => window.location.href = '#'}
+                    >
+                        Join Class
+                    </FunButton>
+                </div>
             }
         >
-            <Head title="Dashboard Siswa" />
+            <Head title="Student Dashboard" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            <h3 className="text-2xl font-bold mb-4">
-                                Selamat datang, {auth.user.full_name}! 🎒
-                            </h3>
-                            <p className="mb-6">Ini adalah dashboard untuk siswa.</p>
-                            
-                            <div className="alert alert-info">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Fitur lesson dan quiz akan ditambahkan di step selanjutnya.</span>
-                            </div>
-                        </div>
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-8"
+            >
+                {/* Stats Cards */}
+                <motion.div variants={itemVariants}>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <StatsCard
+                            icon="📚"
+                            title="Enrolled Classes"
+                            value={stats.total_enrolled}
+                            bgGradient="from-purple-500 to-pink-500"
+                            iconBg="bg-purple-100"
+                            iconColor="text-purple-600"
+                        />
+                        <StatsCard
+                            icon="✅"
+                            title="Completed"
+                            value={stats.completed_lessons}
+                            bgGradient="from-green-500 to-emerald-500"
+                            iconBg="bg-green-100"
+                            iconColor="text-green-600"
+                        />
+                        <StatsCard
+                            icon="📖"
+                            title="In Progress"
+                            value={stats.in_progress}
+                            bgGradient="from-blue-500 to-cyan-500"
+                            iconBg="bg-blue-100"
+                            iconColor="text-blue-600"
+                        />
+                        <StatsCard
+                            icon="🏆"
+                            title="Achievements"
+                            value={stats.total_achievements}
+                            bgGradient="from-orange-500 to-yellow-500"
+                            iconBg="bg-orange-100"
+                            iconColor="text-orange-600"
+                        />
                     </div>
-                </div>
-            </div>
+                </motion.div>
+
+                {/* Enrolled Lessons */}
+                <motion.div variants={itemVariants}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">My Classes</h3>
+                        <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                            View All →
+                        </a>
+                    </div>
+
+                    {enrolledLessons.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {enrolledLessons.map((lesson) => (
+                                <motion.div
+                                    key={lesson.id}
+                                    whileHover={{ y: -8, scale: 1.02 }}
+                                    className="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-transparent hover:border-purple-200 transition-all"
+                                >
+                                    {/* Cover Image */}
+                                    <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 relative overflow-hidden">
+                                        {lesson.cover_image ? (
+                                            <img 
+                                                src={lesson.cover_image} 
+                                                alt={lesson.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-6xl">
+                                                📚
+                                            </div>
+                                        )}
+                                        {lesson.completed && (
+                                            <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                                <span>✓</span> Completed
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-6">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg">
+                                                {lesson.subject}
+                                            </span>
+                                        </div>
+                                        
+                                        <h4 className="text-lg font-bold text-gray-900 mb-2">
+                                            {lesson.title}
+                                        </h4>
+                                        
+                                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                                            {lesson.description}
+                                        </p>
+
+                                        {/* Teacher Info */}
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <img
+                                                src={lesson.teacher.avatar}
+                                                alt={lesson.teacher.name}
+                                                className="w-8 h-8 rounded-full ring-2 ring-purple-100"
+                                            />
+                                            <span className="text-sm text-gray-700 font-medium">
+                                                {lesson.teacher.name}
+                                            </span>
+                                        </div>
+
+                                        {/* Progress Bar */}
+                                        <div className="mb-4">
+                                            <div className="flex items-center justify-between text-sm mb-1">
+                                                <span className="text-gray-600">Progress</span>
+                                                <span className="font-semibold text-purple-600">
+                                                    {lesson.progress}%
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${lesson.progress}%` }}
+                                                    transition={{ duration: 1, delay: 0.5 }}
+                                                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Action Button */}
+                                        <FunButton
+                                            variant="primary"
+                                            size="sm"
+                                            className="w-full"
+                                            onClick={() => window.location.href = '#'}
+                                        >
+                                            {lesson.completed ? 'Review' : 'Continue Learning'}
+                                        </FunButton>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    ) : (
+                        <EmptyState
+                            icon="🎒"
+                            title="No classes enrolled yet"
+                            description="Join your first class using a class code provided by your teacher!"
+                            actionLabel="Join a Class"
+                            actionIcon="➕"
+                            onAction={() => window.location.href = '#'}
+                        />
+                    )}
+                </motion.div>
+
+                {/* Recent Achievements */}
+                {recentAchievements.length > 0 && (
+                    <motion.div variants={itemVariants}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">Recent Achievements 🏆</h3>
+                            <a href="#" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                View All →
+                            </a>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {recentAchievements.map((achievement) => (
+                                <motion.div
+                                    key={achievement.id}
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    className="bg-white rounded-2xl shadow-lg p-6 text-center border-2 border-transparent hover:border-yellow-200 transition-all"
+                                >
+                                    <div className="text-5xl mb-3">{achievement.icon}</div>
+                                    <h4 className="font-bold text-gray-900 mb-1 text-sm">
+                                        {achievement.name}
+                                    </h4>
+                                    <p className="text-xs text-gray-600 mb-2">
+                                        {achievement.description}
+                                    </p>
+                                    <span className="text-xs text-gray-500">
+                                        {achievement.earned_at}
+                                    </span>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Quick Actions */}
+                <motion.div variants={itemVariants}>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <motion.a
+                            href="#"
+                            whileHover={{ scale: 1.02, y: -5 }}
+                            className="bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-purple-200 transition-all"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl">
+                                    📝
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900">Take Quiz</h4>
+                                    <p className="text-sm text-gray-600">Test your knowledge</p>
+                                </div>
+                            </div>
+                        </motion.a>
+
+                        <motion.a
+                            href="#"
+                            whileHover={{ scale: 1.02, y: -5 }}
+                            className="bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-blue-200 transition-all"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
+                                    📖
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900">Study Materials</h4>
+                                    <p className="text-sm text-gray-600">Access lesson resources</p>
+                                </div>
+                            </div>
+                        </motion.a>
+
+                        <motion.a
+                            href="#"
+                            whileHover={{ scale: 1.02, y: -5 }}
+                            className="bg-white rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-green-200 transition-all"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl">
+                                    🎓
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-900">Certificates</h4>
+                                    <p className="text-sm text-gray-600">View your achievements</p>
+                                </div>
+                            </div>
+                        </motion.a>
+                    </div>
+                </motion.div>
+            </motion.div>
         </AuthenticatedLayout>
     );
 }
