@@ -5,7 +5,7 @@ import FunButton from '@/Components/FunButton';
 import ProgressBar from '@/Components/ProgressBar';
 import MaterialViewer from '@/Components/MaterialViewer';
 import Modal from '@/Components/Modal';
-import ChatBox from '@/Components/ChatBox';
+import ChatBoxAdvanced from '@/Components/ChatBoxAdvanced';
 import { motion } from 'framer-motion';
 
 export default function Show({ lesson, enrollment, auth }) {
@@ -380,9 +380,10 @@ export default function Show({ lesson, enrollment, auth }) {
                         {/* Chat Room */}
                         <motion.div variants={itemVariants}>
                             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                                <ChatBox 
+                                <ChatBoxAdvanced 
                                     lessonId={lesson.id}
                                     currentUser={auth.user}
+                                    isTeacher={false}
                                 />
                             </div>
                         </motion.div>

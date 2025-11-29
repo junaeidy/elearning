@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import FunButton from '@/Components/FunButton';
-import ChatBox from '@/Components/ChatBox';
+import ChatBoxAdvanced from '@/Components/ChatBoxAdvanced';
 import { motion } from 'framer-motion';
 import {
     PencilIcon,
@@ -481,9 +481,10 @@ export default function Show({ lesson, auth }) {
                     transition={{ delay: 0.25 }}
                     className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"
                 >
-                    <ChatBox 
+                    <ChatBoxAdvanced 
                         lessonId={lesson.id}
                         currentUser={auth.user}
+                        isTeacher={true}
                     />
                 </motion.div>
             </div>

@@ -75,3 +75,8 @@ Broadcast::channel('lesson-presence.{lessonId}', function (User $user, int $less
     
     return false;
 });
+
+// Private channel for user notifications (mentions, etc.)
+Broadcast::channel('user.{userId}', function (User $user, int $userId) {
+    return (int) $user->id === (int) $userId;
+});

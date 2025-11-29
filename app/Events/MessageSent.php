@@ -50,20 +50,42 @@ class MessageSent implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        return [
-            'message' => [
-                'id' => $this->message->id,
-                'lesson_id' => $this->message->lesson_id,
-                'sender_id' => $this->message->sender_id,
-                'message' => $this->message->message,
-                'type' => $this->message->message_type,
-                'created_at' => $this->message->created_at->toISOString(),
-                'sender' => [
-                    'id' => $this->message->sender->id,
-                    'name' => $this->message->sender->name,
-                    'avatar' => $this->message->sender->avatar,
-                ],
+        $messageData = [
+            'id' => $this->message->id,
+            'lesson_id' => $this->message->lesson_id,
+            'sender_id' => $this->message->sender_id,
+            'message' => $this->message->message,
+            'message_type' => $this->message->message_type,
+            'type' => $this->message->message_type,
+            'created_at' => $this->message->created_at->toISOString(),
+            'parent_message_id' => $this->message->parent_message_id,
+            'thread_count' => $this->message->thread_count ?? 0,
+            'voice_url' => $this->message->voice_url,
+            'voice_duration' => $this->message->voice_duration,
+            'mentioned_user_ids' => $this->message->mentioned_user_ids,
+            'reactions' => [],
+            'readBy' => [],
+            'sender' => [
+                'id' => $this->message->sender->id,
+                'name' => $this->message->sender->name,
+                'avatar' => $this->message->sender->avatar,
             ],
+        ];
+
+        // Add parent message if exists
+        if ($this->message->parent_message_id && $this->message->parentMessage) {
+            $messageData['parent_message'] = [
+                'id' => $this->message->parentMessage->id,
+                'message' => $this->message->parentMessage->message,
+                'message_type' => $this->message->parentMessage->message_type,
+                'sender' => [
+                    'name' => $this->message->parentMessage->sender->name,
+                ],
+            ];
+        }
+
+        return [
+            'message' => $messageData,
         ];
     }
 }

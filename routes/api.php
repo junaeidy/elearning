@@ -28,5 +28,31 @@ Route::middleware(['auth'])->group(function () {
         
         // Online users
         Route::get('online-users', [ChatController::class, 'onlineUsers']);
+
+        // Message reactions
+        Route::post('messages/{message}/react', [ChatController::class, 'toggleReaction']);
+
+        // Read receipts
+        Route::post('messages/mark-read', [ChatController::class, 'markAsRead']);
+
+        // Message search
+        Route::get('messages/search', [ChatController::class, 'search']);
+
+        // Threading - get replies
+        Route::get('messages/{message}/replies', [ChatController::class, 'getReplies']);
+
+        // Get users for mentions
+        Route::get('users', [ChatController::class, 'getUsers']);
+
+        // Moderation - Ban/Mute
+        Route::post('ban-user', [ChatController::class, 'banUser']);
+        Route::post('unban-user', [ChatController::class, 'unbanUser']);
+        Route::post('mute-user', [ChatController::class, 'muteUser']);
+        Route::post('unmute-user', [ChatController::class, 'unmuteUser']);
+
+        // Moderation - Flagging
+        Route::post('messages/{message}/flag', [ChatController::class, 'flagMessage']);
+        Route::get('flagged-messages', [ChatController::class, 'getFlaggedMessages']);
+        Route::post('flagged-messages/{flag}/review', [ChatController::class, 'reviewFlag']);
     });
 });

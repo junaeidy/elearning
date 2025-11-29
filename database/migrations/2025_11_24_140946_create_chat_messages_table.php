@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('message');
-            $table->enum('message_type', ['text', 'emoji', 'system'])->default('text');
+            $table->enum('message_type', ['text', 'emoji', 'system', 'voice'])->default('text');
             $table->boolean('is_private')->default(false);
             $table->timestamps();
             
