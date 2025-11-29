@@ -55,6 +55,11 @@ class Lesson extends Model
                     ->withPivot('progress_percentage', 'completed_at');
     }
 
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
+    }
+
     // Helper methods
     public static function generateCode()
     {

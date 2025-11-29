@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import FunButton from '@/Components/FunButton';
+import ChatBox from '@/Components/ChatBox';
 import { motion } from 'framer-motion';
 import {
     PencilIcon,
@@ -16,7 +17,7 @@ import {
     XMarkIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Show({ lesson }) {
+export default function Show({ lesson, auth }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [dragActive, setDragActive] = useState(false);
 
@@ -471,6 +472,19 @@ export default function Show({ lesson }) {
                             </table>
                         </div>
                     )}
+                </motion.div>
+
+                {/* Chat Room Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4"
+                >
+                    <ChatBox 
+                        lessonId={lesson.id}
+                        currentUser={auth.user}
+                    />
                 </motion.div>
             </div>
 

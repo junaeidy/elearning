@@ -5,9 +5,10 @@ import FunButton from '@/Components/FunButton';
 import ProgressBar from '@/Components/ProgressBar';
 import MaterialViewer from '@/Components/MaterialViewer';
 import Modal from '@/Components/Modal';
+import ChatBox from '@/Components/ChatBox';
 import { motion } from 'framer-motion';
 
-export default function Show({ lesson, enrollment }) {
+export default function Show({ lesson, enrollment, auth }) {
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showLeaveModal, setShowLeaveModal] = useState(false);
 
@@ -376,22 +377,13 @@ export default function Show({ lesson, enrollment }) {
                             </div>
                         </motion.div>
 
-                        {/* Quick Actions */}
+                        {/* Chat Room */}
                         <motion.div variants={itemVariants}>
-                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg p-6 text-white">
-                                <h3 className="text-lg font-bold mb-4">
-                                    Aksi Cepat
-                                </h3>
-                                <div className="space-y-3">
-                                    <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg px-4 py-3 text-left transition-all flex items-center gap-3">
-                                        <span className="text-2xl">📧</span>
-                                        <span className="font-semibold">Hubungi Guru</span>
-                                    </button>
-                                    <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg px-4 py-3 text-left transition-all flex items-center gap-3">
-                                        <span className="text-2xl">📊</span>
-                                        <span className="font-semibold">Lihat Statistik</span>
-                                    </button>
-                                </div>
+                            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                                <ChatBox 
+                                    lessonId={lesson.id}
+                                    currentUser={auth.user}
+                                />
                             </div>
                         </motion.div>
                     </div>

@@ -2,25 +2,28 @@
 
 namespace App\Events;
 
-use App\Models\User;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserDeactivated implements ShouldBroadcastNow
+class MessageDeleted implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $userId;
+    public $messageId;
+    public $lessonId;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(User $user)
+    public function __construct(int $messageId, int $lessonId)
     {
-        $this->userId = $user->id;
+        $this->messageId = $messageId;
+        $this->lessonId = $lessonId;
     }
 
     /**
@@ -31,7 +34,7 @@ class UserDeactivated implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.' . $this->userId),
+            new PrivateChannel('lesson.' . $this->lessonId),
         ];
     }
 
@@ -40,6 +43,17 @@ class UserDeactivated implements ShouldBroadcastNow
      */
     public function broadcastAs(): string
     {
-        return 'user.deactivated';
+        return 'message.deleted';
+    }
+
+    /**
+     * Get the data to broadcast.
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'message_id' => $this->messageId,
+            'lesson_id' => $this->lessonId,
+        ];
     }
 }

@@ -13,8 +13,14 @@ class ChatMessage extends Model
         'lesson_id',
         'sender_id',
         'message',
-        'type',
+        'message_type',
     ];
+
+    // Accessor for backward compatibility
+    public function getTypeAttribute()
+    {
+        return $this->message_type;
+    }
 
     // Relationships
     public function lesson()

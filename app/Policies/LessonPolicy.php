@@ -20,7 +20,19 @@ class LessonPolicy
      */
     public function view(User $user, Lesson $lesson): bool
     {
-        return $user->isTeacher() && $user->id === $lesson->teacher_id;
+        // Teacher can view their own lessons
+        if ($user->isTeacher() && $user->id === $lesson->teacher_id) {
+            return true;
+        }
+        
+        // Student can view if enrolled
+        if ($user->isStudent()) {
+            return $lesson->enrollments()
+                ->where('student_id', $user->id)
+                ->exists();
+        }
+        
+        return false;
     }
 
     /**
