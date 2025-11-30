@@ -19,10 +19,15 @@ class ChatMessage extends Model
         'mentioned_user_ids',
         'voice_url',
         'voice_duration',
+        'is_deleted',
+        'deleted_by',
+        'deleted_at',
     ];
 
     protected $casts = [
         'mentioned_user_ids' => 'array',
+        'is_deleted' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     // Accessor for backward compatibility
@@ -70,6 +75,11 @@ class ChatMessage extends Model
     public function flags()
     {
         return $this->hasMany(FlaggedMessage::class, 'message_id');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 
     // Helper methods

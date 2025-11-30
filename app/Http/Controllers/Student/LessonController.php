@@ -123,9 +123,7 @@ class LessonController extends Controller
             'materials' => function ($query) {
                 $query->orderBy('created_at');
             },
-            'quizzes' => function ($query) {
-                $query->where('is_active', true);
-            },
+            'quizzes',
             'enrollments' => function ($query) {
                 $query->with('student:id,name,avatar');
             },
@@ -170,6 +168,7 @@ class LessonController extends Controller
                         'duration_minutes' => $quiz->duration_minutes,
                         'passing_score' => $quiz->passing_score,
                         'max_attempts' => $quiz->max_attempts,
+                        'is_active' => $quiz->is_active,
                         'total_questions' => $quiz->questions()->count(),
                         'attempts_count' => $attempts->count(),
                         'best_score' => $bestAttempt ? $bestAttempt->score : null,

@@ -107,7 +107,14 @@ export default function Index({ lesson, quizzes }) {
                                             )}
 
                                             {/* Availability Status */}
-                                            {!quiz.is_available && (
+                                            {!quiz.is_active && (
+                                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+                                                    <p className="text-sm text-gray-800">
+                                                        🔒 Quiz belum dimulai oleh guru
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {quiz.is_active && !quiz.is_available && (
                                                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
                                                     <p className="text-sm text-yellow-800">
                                                         ⚠️ This quiz is not currently available

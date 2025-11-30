@@ -16,14 +16,16 @@ class MessageDeleted implements ShouldBroadcastNow
 
     public $messageId;
     public $lessonId;
+    public $deletedByTeacher;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(int $messageId, int $lessonId)
+    public function __construct(int $messageId, int $lessonId, bool $deletedByTeacher = false)
     {
         $this->messageId = $messageId;
         $this->lessonId = $lessonId;
+        $this->deletedByTeacher = $deletedByTeacher;
     }
 
     /**
@@ -54,6 +56,7 @@ class MessageDeleted implements ShouldBroadcastNow
         return [
             'message_id' => $this->messageId,
             'lesson_id' => $this->lessonId,
+            'deleted_by_teacher' => $this->deletedByTeacher,
         ];
     }
 }

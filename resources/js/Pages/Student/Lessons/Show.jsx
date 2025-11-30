@@ -12,6 +12,10 @@ export default function Show({ lesson, enrollment, auth }) {
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showLeaveModal, setShowLeaveModal] = useState(false);
 
+    const handleStartQuiz = (quizId) => {
+        router.post(route('student.quiz-attempts.start', { lesson: lesson.id, quiz: quizId }));
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -173,6 +177,9 @@ export default function Show({ lesson, enrollment, auth }) {
                                     showLabel={false}
                                     height="h-4"
                                 />
+                                <p className="text-xs text-gray-500 mt-2">
+                                    💡 Progress otomatis bertambah saat Anda menyelesaikan quiz dengan nilai passing
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -257,9 +264,21 @@ export default function Show({ lesson, enrollment, auth }) {
                                             >
                                                 <div className="flex items-start justify-between mb-4">
                                                     <div className="flex-1">
-                                                        <h4 className="text-lg font-bold text-gray-900 mb-2">
-                                                            {quiz.title}
-                                                        </h4>
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <h4 className="text-lg font-bold text-gray-900">
+                                                                {quiz.title}
+                                                            </h4>
+                                                            {!quiz.is_active && (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold">
+                                                                    🔒 Belum Aktif
+                                                                </span>
+                                                            )}
+                                                            {quiz.is_active && (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                                                    ✓ Aktif
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="text-gray-600 text-sm mb-4">
                                                             {quiz.description}
                                                         </p>
@@ -301,16 +320,29 @@ export default function Show({ lesson, enrollment, auth }) {
                                                 )}
 
                                                 <div className="flex gap-2">
-                                                    {quiz.can_attempt ? (
-                                                        <Link href={route('student.quiz-attempts.start', { lesson: lesson.id, quiz: quiz.id })}>
+                                                    {!quiz.is_active ? (
+                                                        <div className="w-full">
                                                             <FunButton
-                                                                variant={quiz.best_score === null ? 'primary' : 'secondary'}
+                                                                variant="ghost"
                                                                 size="md"
-                                                                icon="🚀"
+                                                                disabled
+                                                                className="w-full"
                                                             >
-                                                                {quiz.best_score === null ? 'Mulai Quiz' : 'Coba Lagi'}
+                                                                🔒 Quiz Belum Aktif
                                                             </FunButton>
-                                                        </Link>
+                                                            <p className="text-xs text-gray-500 mt-2 text-center">
+                                                                Quiz ini belum dimulai oleh guru
+                                                            </p>
+                                                        </div>
+                                                    ) : quiz.can_attempt ? (
+                                                        <FunButton
+                                                            variant={quiz.best_score === null ? 'primary' : 'secondary'}
+                                                            size="md"
+                                                            icon="🚀"
+                                                            onClick={() => handleStartQuiz(quiz.id)}
+                                                        >
+                                                            {quiz.best_score === null ? 'Mulai Quiz' : 'Coba Lagi'}
+                                                        </FunButton>
                                                     ) : (
                                                         <FunButton
                                                             variant="ghost"

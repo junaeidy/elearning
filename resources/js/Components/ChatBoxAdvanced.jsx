@@ -121,7 +121,17 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
 
         // Listen for message deletion
         channel.listen('.message.deleted', (e) => {
-            setMessages(prev => prev.filter(m => m.id !== e.message_id));
+            setMessages(prev => prev.map(m => {
+                if (m.id === e.message_id) {
+                    return {
+                        ...m,
+                        is_deleted: true,
+                        deleted_by_teacher: e.deleted_by_teacher,
+                        deleted_at: new Date().toISOString()
+                    };
+                }
+                return m;
+            }));
         });
 
         // Listen for hand raise
@@ -348,10 +358,23 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
         if (!confirm('Hapus pesan ini?')) return;
 
         try {
-            await axios.delete(`/api/lessons/${lessonId}/messages/${messageId}`);
-            setMessages(prev => prev.filter(m => m.id !== messageId));
+            const response = await axios.delete(`/api/lessons/${lessonId}/messages/${messageId}`);
+            // Update message to show as deleted instead of removing it
+            setMessages(prev => prev.map(m => {
+                if (m.id === messageId) {
+                    return {
+                        ...m,
+                        is_deleted: true,
+                        deleted_by: currentUser.id,
+                        deleted_by_teacher: response.data.deleted_by_teacher,
+                        deleted_at: new Date().toISOString()
+                    };
+                }
+                return m;
+            }));
         } catch (error) {
             console.error('Failed to delete message:', error);
+            alert(error.response?.data?.error || 'Gagal menghapus pesan');
         }
     };
 
@@ -744,50 +767,64 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
                                                 </div>
 
                                                 {/* Message bubble */}
-                                                <div id={`message-${message.id}`} className={`flex flex-col max-w-[70%] transition-colors duration-500 ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+                                                <div id={`message-${message.id}`} className={`flex flex-col max-w-[70%] transition-colors duration-500 ${isOwnMessage ? 'items-end' : 'items-start'} relative`}>
                                                     {showHeader && !isOwnMessage && (
                                                         <span className="text-xs text-gray-600 mb-1 px-2">
                                                             {message.sender.name}
                                                         </span>
                                                     )}
 
-                                                    {/* Reply indicator */}
-                                                    {message.parent_message_id && message.parent_message && (
-                                                        <div 
-                                                            onClick={() => scrollToMessage(message.parent_message_id)}
-                                                            className="text-xs bg-gray-100 border-l-4 border-indigo-400 px-3 py-2 mb-1 rounded cursor-pointer hover:bg-gray-200 transition-colors max-w-full"
-                                                        >
-                                                            <div className="flex items-center gap-1 text-indigo-600 font-medium mb-1">
-                                                                <span>↩️</span>
-                                                                <span>{message.parent_message.sender.name}</span>
-                                                            </div>
-                                                            <div className="text-gray-700 truncate">
-                                                                {message.parent_message.message_type === 'voice' 
-                                                                    ? '🎤 Pesan Suara' 
-                                                                    : message.parent_message.message.length > 50 
-                                                                        ? message.parent_message.message.substring(0, 50) + '...' 
-                                                                        : message.parent_message.message}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    <div className={`group relative px-3 py-2 rounded-xl ${
+                                    {/* Reply indicator - hide if parent message is deleted */}
+                                    {message.parent_message_id && message.parent_message && !message.parent_message.is_deleted && (
+                                        <div 
+                                            onClick={() => scrollToMessage(message.parent_message_id)}
+                                            className="text-xs bg-gray-100 border-l-4 border-indigo-400 px-3 py-2 mb-1 rounded cursor-pointer hover:bg-gray-200 transition-colors max-w-full"
+                                        >
+                                            <div className="flex items-center gap-1 text-indigo-600 font-medium mb-1">
+                                                <span>↩️</span>
+                                                <span>{message.parent_message.sender.name}</span>
+                                            </div>
+                                            <div className="text-gray-700 truncate">
+                                                {message.parent_message.message_type === 'voice' 
+                                                    ? '🎤 Pesan Suara' 
+                                                    : message.parent_message.message.length > 50 
+                                                        ? message.parent_message.message.substring(0, 50) + '...' 
+                                                        : message.parent_message.message}
+                                            </div>
+                                        </div>
+                                    )}                                                    <div className={`group relative px-3 py-2 rounded-xl ${
                                                         isOwnMessage
                                                             ? 'bg-indigo-600 text-white rounded-br-none'
                                                             : 'bg-white text-gray-800 rounded-bl-none shadow-sm'
                                                     }`}>
-                                                        {/* Voice Message */}
-                                                        {message.message_type === 'voice' && message.voice_url ? (
-                                                            <AudioPlayer 
-                                                                audioUrl={message.voice_url} 
-                                                                duration={message.voice_duration}
-                                                            />
+                                                        {/* Deleted Message */}
+                                                        {message.is_deleted ? (
+                                                            <div className={`italic ${
+                                                                isOwnMessage ? 'text-indigo-200' : 'text-gray-500'
+                                                            }`}>
+                                                                <p className="text-sm">
+                                                                    {message.deleted_by_teacher 
+                                                                        ? '🗑️ Pesan ini dihapus oleh guru'
+                                                                        : '🗑️ Pesan ini dihapus'
+                                                                    }
+                                                                </p>
+                                                            </div>
                                                         ) : (
-                                                            <p className="text-sm break-words">{renderMessageText(message.message)}</p>
+                                                            <>
+                                                                {/* Voice Message */}
+                                                                {message.message_type === 'voice' && message.voice_url ? (
+                                                                    <AudioPlayer 
+                                                                        audioUrl={message.voice_url} 
+                                                                        duration={message.voice_duration}
+                                                                    />
+                                                                ) : (
+                                                                    <p className="text-sm break-words">{renderMessageText(message.message)}</p>
+                                                                )}
+                                                            </>
                                                         )}
                                                         
                                                         {/* Reactions */}
-                                                        {message.reactions && Object.keys(message.reactions).length > 0 && (
+                                                        {!message.is_deleted && message.reactions && Object.keys(message.reactions).length > 0 && (
                                                             <div className="flex gap-1 mt-1 flex-wrap">
                                                                 {Object.entries(message.reactions).map(([emoji, count]) => (
                                                                     <span key={emoji} className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
@@ -806,17 +843,19 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
                                                             )}
                                                         </div>
 
-                                                        {/* Message actions */}
-                                                        <div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1">
-                                                            <button onClick={() => handleReaction(message.id, '👍')} className="hover:bg-gray-100 p-1 rounded">👍</button>
-                                                            <button onClick={() => handleReaction(message.id, '❤️')} className="hover:bg-gray-100 p-1 rounded">❤️</button>
-                                                            <button onClick={() => handleReaction(message.id, '😂')} className="hover:bg-gray-100 p-1 rounded">😂</button>
-                                                            <button onClick={() => setReplyingTo(message)} className="hover:bg-gray-100 p-1 rounded text-xs">↩️</button>
-                                                            <button onClick={() => handleFlagMessage(message.id)} className="hover:bg-gray-100 p-1 rounded text-xs">🚩</button>
-                                                            {(isOwnMessage || isTeacher) && (
-                                                                <button onClick={() => handleDeleteMessage(message.id)} className="hover:bg-gray-100 p-1 rounded">🗑️</button>
-                                                            )}
-                                                        </div>
+                                                        {/* Message actions - hide for deleted messages */}
+                                                        {!message.is_deleted && (
+                                                            <div className={`absolute -top-8 ${isOwnMessage ? 'right-0' : 'left-0'} opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 bg-white rounded-lg shadow-lg p-1 z-10 whitespace-nowrap`}>
+                                                                <button onClick={() => handleReaction(message.id, '👍')} className="hover:bg-gray-100 p-1 rounded" title="Reaksi">👍</button>
+                                                                <button onClick={() => handleReaction(message.id, '❤️')} className="hover:bg-gray-100 p-1 rounded" title="Reaksi">❤️</button>
+                                                                <button onClick={() => handleReaction(message.id, '😂')} className="hover:bg-gray-100 p-1 rounded" title="Reaksi">😂</button>
+                                                                <button onClick={() => setReplyingTo(message)} className="hover:bg-gray-100 p-1 rounded text-xs" title="Balas">↩️</button>
+                                                                <button onClick={() => handleFlagMessage(message.id)} className="hover:bg-gray-100 p-1 rounded text-xs" title="Laporkan">🚩</button>
+                                                                {(isOwnMessage || isTeacher) && (
+                                                                    <button onClick={() => handleDeleteMessage(message.id)} className="hover:bg-gray-100 p-1 rounded" title="Hapus">🗑️</button>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {/* Thread indicator */}

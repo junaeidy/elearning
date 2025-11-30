@@ -37,7 +37,7 @@ class ChatController extends Controller
         $perPage = $request->get('per_page', 50);
         
         $messages = ChatMessage::where('lesson_id', $lesson->id)
-            ->with(['sender:id,name,avatar', 'parentMessage.sender:id,name,avatar'])
+            ->with(['sender:id,name,avatar', 'parentMessage.sender:id,name,avatar', 'deletedBy:id,name'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -55,6 +55,12 @@ class ChatController extends Controller
                         'read_at' => $read->read_at,
                     ];
                 });
+            
+            // Add deletion info
+            if ($message->is_deleted && $message->deletedBy) {
+                $message->deleted_by_name = $message->deletedBy->name;
+                $message->deleted_by_teacher = $lesson->teacher_id === $message->deleted_by;
+            }
         }
 
         return response()->json([
@@ -188,18 +194,32 @@ class ChatController extends Controller
      */
     public function destroy(Lesson $lesson, ChatMessage $message)
     {
-        // Check if user owns the message or is the teacher
-        if ($message->sender_id !== Auth::id() && $lesson->teacher_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        $user = Auth::user();
+        $isTeacher = $lesson->teacher_id === $user->id;
+        $isOwner = $message->sender_id === $user->id;
+
+        // Permission check:
+        // - Students can only delete their own messages
+        // - Teachers can delete any message in their lesson
+        if (!$isOwner && !$isTeacher) {
+            return response()->json(['error' => 'Anda tidak memiliki izin untuk menghapus pesan ini'], 403);
         }
 
-        $messageId = $message->id;
-        $message->delete();
+        // Soft delete: mark as deleted instead of actually deleting
+        $message->update([
+            'is_deleted' => true,
+            'deleted_by' => $user->id,
+            'deleted_at' => now(),
+        ]);
 
-        // Broadcast message deletion to other users
-        broadcast(new MessageDeleted($messageId, $lesson->id))->toOthers();
+        // Broadcast message deletion to other users with teacher info
+        broadcast(new MessageDeleted($message->id, $lesson->id, $isTeacher))->toOthers();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil dihapus',
+            'deleted_by_teacher' => $isTeacher,
+        ]);
     }
 
     /**

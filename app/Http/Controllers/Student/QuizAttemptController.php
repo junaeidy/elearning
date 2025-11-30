@@ -8,6 +8,7 @@ use App\Models\QuizAttempt;
 use App\Models\QuizQuestion;
 use App\Models\QuizAnswer;
 use App\Models\Lesson;
+use App\Models\LessonEnrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -29,8 +30,8 @@ class QuizAttemptController extends Controller
             abort(403, 'Anda belum terdaftar di pelajaran ini.');
         }
 
+        // Get all quizzes (both active and inactive) to show students what's coming
         $quizzes = $lesson->quizzes()
-            ->where('is_active', true)
             ->withCount('questions')
             ->with(['attempts' => function ($query) {
                 $query->where('student_id', auth()->id());
@@ -48,10 +49,11 @@ class QuizAttemptController extends Controller
                     'duration_minutes' => $quiz->duration_minutes,
                     'passing_score' => $quiz->passing_score,
                     'max_attempts' => $quiz->max_attempts,
+                    'is_active' => $quiz->is_active,
                     'questions_count' => $quiz->questions_count,
                     'user_attempts' => $userAttempts,
                     'best_score' => $bestScore,
-                    'can_attempt' => $userAttempts < $quiz->max_attempts,
+                    'can_attempt' => $userAttempts < $quiz->max_attempts && $quiz->is_active,
                     'last_attempt' => $lastAttempt,
                     'is_available' => $this->isQuizAvailable($quiz),
                 ];
@@ -283,6 +285,9 @@ class QuizAttemptController extends Controller
 
         $this->calculateAndSaveScore($attempt);
 
+        // Auto-update lesson progress
+        $this->updateLessonProgress($lesson, auth()->id());
+
         return redirect()->route('student.quiz-attempts.result', [$lesson, $attempt])
             ->with('success', 'Kuis berhasil dikumpulkan!');
     }
@@ -394,5 +399,59 @@ class QuizAttemptController extends Controller
         }
 
         return true;
+    }
+
+    /**
+     * Update lesson progress based on completed quizzes and materials
+     */
+    private function updateLessonProgress($lesson, $studentId)
+    {
+        // Load lesson with materials and quizzes (only active quizzes for progress calculation)
+        $lesson->load([
+            'materials',
+            'quizzes' => function ($query) {
+                $query->where('is_active', true);
+            }
+        ]);
+        
+        $totalMaterials = $lesson->materials->count();
+        $totalQuizzes = $lesson->quizzes->count();
+        
+        if ($totalMaterials === 0 && $totalQuizzes === 0) {
+            return;
+        }
+        
+        // Count completed quizzes (passed with passing score)
+        $completedQuizzes = QuizAttempt::where('student_id', $studentId)
+            ->whereIn('quiz_id', $lesson->quizzes->pluck('id'))
+            ->whereNotNull('completed_at')
+            ->selectRaw('quiz_id, MAX(score) as best_score')
+            ->groupBy('quiz_id')
+            ->get()
+            ->filter(function ($attempt) use ($lesson) {
+                $quiz = $lesson->quizzes->firstWhere('id', $attempt->quiz_id);
+                return $quiz && $attempt->best_score >= $quiz->passing_score;
+            })
+            ->count();
+        
+        // For now, we count progress based on quiz completion only
+        // You can enhance this to track material views if needed
+        $totalItems = $totalQuizzes > 0 ? $totalQuizzes : 1;
+        $completedItems = $completedQuizzes;
+        
+        $progressPercentage = round(($completedItems / $totalItems) * 100);
+        $progressPercentage = min($progressPercentage, 100);
+        
+        // Update enrollment progress
+        $enrollment = LessonEnrollment::where('lesson_id', $lesson->id)
+            ->where('student_id', $studentId)
+            ->first();
+        
+        if ($enrollment) {
+            $enrollment->update([
+                'progress_percentage' => $progressPercentage,
+                'completed_at' => $progressPercentage >= 100 ? now() : null,
+            ]);
+        }
     }
 }
