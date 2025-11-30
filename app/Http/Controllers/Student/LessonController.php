@@ -135,6 +135,12 @@ class LessonController extends Controller
             ->with('quiz:id,title,passing_score')
             ->get();
 
+        // Get student's completed materials
+        $completedMaterialIds = \App\Models\MaterialCompletion::where('student_id', auth()->id())
+            ->where('lesson_id', $lesson->id)
+            ->pluck('material_id')
+            ->toArray();
+
         // Calculate progress
         $totalMaterials = $lesson->materials->count();
         $totalQuizzes = $lesson->quizzes->count();
@@ -156,7 +162,21 @@ class LessonController extends Controller
                     'avatar_url' => $lesson->teacher->avatar_url,
                     'email' => $lesson->teacher->email,
                 ],
-                'materials' => $lesson->materials,
+                'materials' => $lesson->materials->map(function ($material) use ($completedMaterialIds) {
+                    return [
+                        'id' => $material->id,
+                        'title' => $material->title,
+                        'type' => $material->type,
+                        'file_path' => $material->file_path,
+                        'file_url' => $material->file_url,
+                        'file_size' => $material->file_size,
+                        'mime_type' => $material->mime_type,
+                        'order_index' => $material->order_index,
+                        'duration' => $material->duration,
+                        'created_at' => $material->created_at,
+                        'is_completed' => in_array($material->id, $completedMaterialIds),
+                    ];
+                }),
                 'quizzes' => $lesson->quizzes->map(function ($quiz) use ($quizAttempts) {
                     $attempts = $quizAttempts->where('quiz_id', $quiz->id);
                     $bestAttempt = $attempts->sortByDesc('score')->first();

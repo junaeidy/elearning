@@ -31,6 +31,11 @@ class LessonMaterial extends Model
         return $this->belongsTo(Lesson::class);
     }
 
+    public function completions()
+    {
+        return $this->hasMany(MaterialCompletion::class, 'material_id');
+    }
+
     // Helper methods
     public function getFileUrlAttribute()
     {

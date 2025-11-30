@@ -78,6 +78,11 @@ class User extends Authenticatable
         return $this->hasMany(Certificate::class, 'student_id');
     }
 
+    public function materialCompletions()
+    {
+        return $this->hasMany(MaterialCompletion::class, 'student_id');
+    }
+
     // Helper methods
     public function isTeacher(): bool
     {

@@ -213,7 +213,7 @@ class ChatController extends Controller
         ]);
 
         // Broadcast message deletion to other users with teacher info
-        broadcast(new MessageDeleted($message->id, $lesson->id, $isTeacher))->toOthers();
+        broadcast(new MessageDeleted($message->id, $lesson->id, $isTeacher, $message->sender_id, $user->id))->toOthers();
 
         return response()->json([
             'success' => true,
@@ -257,7 +257,7 @@ class ChatController extends Controller
         broadcast(new HandRaised(
             Auth::user(),
             $lesson->id
-        ))->toOthers();
+        ));
 
         return response()->json(['success' => true]);
     }
@@ -622,16 +622,18 @@ class ChatController extends Controller
      */
     private function parseMentions($messageText, $lesson)
     {
-        // Match @username or @Name pattern
-        preg_match_all('/@(\w+)/', $messageText, $matches);
+        // Match @[Full Name] or @username pattern
+        // Support both @[John Doe] and @John formats
+        preg_match_all('/@\[([^\]]+)\]|@(\w+)/', $messageText, $matches);
         
-        if (empty($matches[1])) {
+        // Combine both match groups (names with brackets and without)
+        $mentionedNames = array_filter(array_merge($matches[1], $matches[2]));
+        
+        if (empty($mentionedNames)) {
             return [];
         }
-
-        $mentionedNames = $matches[1];
         
-        // Find users by name in this lesson
+        // Find users by exact name match first, then partial match
         $userIds = User::where(function ($query) use ($lesson) {
             $query->where('id', $lesson->teacher_id)
                 ->orWhereHas('lessonEnrollments', function ($q) use ($lesson) {
@@ -640,10 +642,14 @@ class ChatController extends Controller
         })
         ->where(function ($query) use ($mentionedNames) {
             foreach ($mentionedNames as $name) {
-                $query->orWhere('name', 'like', '%' . $name . '%');
+                // Try exact match first, then starts with, then contains
+                $query->orWhere('name', '=', $name)
+                      ->orWhere('name', 'like', $name . '%')
+                      ->orWhere('name', 'like', '%' . $name . '%');
             }
         })
         ->pluck('id')
+        ->unique()
         ->toArray();
 
         return $userIds;

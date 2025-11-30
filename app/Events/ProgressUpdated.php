@@ -10,26 +10,26 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageDeleted implements ShouldBroadcastNow
+class ProgressUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $messageId;
     public $lessonId;
-    public $deletedByTeacher;
-    public $senderId;
-    public $deletedBy;
+    public $studentId;
+    public $progressPercentage;
+    public $materialId;
+    public $isCompleted;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(int $messageId, int $lessonId, bool $deletedByTeacher = false, int $senderId = null, int $deletedBy = null)
+    public function __construct(int $lessonId, int $studentId, int $progressPercentage, int $materialId, bool $isCompleted)
     {
-        $this->messageId = $messageId;
         $this->lessonId = $lessonId;
-        $this->deletedByTeacher = $deletedByTeacher;
-        $this->senderId = $senderId;
-        $this->deletedBy = $deletedBy;
+        $this->studentId = $studentId;
+        $this->progressPercentage = $progressPercentage;
+        $this->materialId = $materialId;
+        $this->isCompleted = $isCompleted;
     }
 
     /**
@@ -49,7 +49,7 @@ class MessageDeleted implements ShouldBroadcastNow
      */
     public function broadcastAs(): string
     {
-        return 'message.deleted';
+        return 'progress.updated';
     }
 
     /**
@@ -58,11 +58,11 @@ class MessageDeleted implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'message_id' => $this->messageId,
             'lesson_id' => $this->lessonId,
-            'deleted_by_teacher' => $this->deletedByTeacher,
-            'sender_id' => $this->senderId,
-            'deleted_by' => $this->deletedBy,
+            'student_id' => $this->studentId,
+            'progress_percentage' => $this->progressPercentage,
+            'material_id' => $this->materialId,
+            'is_completed' => $this->isCompleted,
         ];
     }
 }

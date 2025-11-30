@@ -54,5 +54,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('messages/{message}/flag', [ChatController::class, 'flagMessage']);
         Route::get('flagged-messages', [ChatController::class, 'getFlaggedMessages']);
         Route::post('flagged-messages/{flag}/review', [ChatController::class, 'reviewFlag']);
+
+        // Material completion
+        Route::post('materials/{material}/toggle-completion', [\App\Http\Controllers\Api\MaterialCompletionController::class, 'toggle']);
     });
 });

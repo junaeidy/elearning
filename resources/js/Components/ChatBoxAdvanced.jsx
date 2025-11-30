@@ -127,6 +127,8 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
                         ...m,
                         is_deleted: true,
                         deleted_by_teacher: e.deleted_by_teacher,
+                        sender_id: e.sender_id,
+                        deleted_by: e.deleted_by,
                         deleted_at: new Date().toISOString()
                     };
                 }
@@ -347,7 +349,12 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
         const lastAtSymbol = textBeforeCursor.lastIndexOf('@');
         const textAfterCursor = newMessage.substring(cursorPosition);
         
-        const newText = newMessage.substring(0, lastAtSymbol) + `@${user.name} ` + textAfterCursor;
+        // Use @[Full Name] format if name contains space, otherwise use @Name
+        const mentionText = user.name.includes(' ') 
+            ? `@[${user.name}]` 
+            : `@${user.name}`;
+        
+        const newText = newMessage.substring(0, lastAtSymbol) + `${mentionText} ` + textAfterCursor;
         setNewMessage(newText);
         setShowMentions(false);
         messageInputRef.current?.focus();
@@ -569,17 +576,24 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
 
     // Render message with mentions highlighted
     const renderMessageText = (text) => {
-        const parts = text.split(/(@\w+)/g);
+        // Match both @[Full Name] and @username formats
+        const parts = text.split(/(@\[[^\]]+\]|@\w+)/g);
         return parts.map((part, index) => {
             if (part.startsWith('@')) {
-                return <span key={index} className="text-blue-600 font-semibold">{part}</span>;
+                return (
+                    <span key={index} className="text-blue-600 font-semibold bg-blue-50 px-1 rounded">
+                        {part}
+                    </span>
+                );
             }
             return part;
         });
     };
 
     const messageGroups = groupMessagesByDate(messages);
+    // Filter users: exclude current user and filter by mention query
     const filteredUsers = users.filter(u => 
+        u.id !== currentUser.id && // Don't allow mentioning yourself
         u.name.toLowerCase().includes(mentionQuery.toLowerCase())
     );
 
@@ -803,7 +817,7 @@ export default function ChatBoxAdvanced({ lessonId, currentUser, isTeacher = fal
                                                                 isOwnMessage ? 'text-indigo-200' : 'text-gray-500'
                                                             }`}>
                                                                 <p className="text-sm">
-                                                                    {message.deleted_by_teacher 
+                                                                    {message.deleted_by_teacher && message.sender_id !== message.deleted_by
                                                                         ? '🗑️ Pesan ini dihapus oleh guru'
                                                                         : '🗑️ Pesan ini dihapus'
                                                                     }

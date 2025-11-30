@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FunButton from '@/Components/FunButton';
 import ChatBoxAdvanced from '@/Components/ChatBoxAdvanced';
 import UploadProgressModal from '@/Components/UploadProgressModal';
@@ -25,6 +25,68 @@ export default function Show({ lesson, auth }) {
     const [uploadFile, setUploadFile] = useState(null);
     const [uploadTitle, setUploadTitle] = useState('');
     const [uploadType, setUploadType] = useState('pdf');
+    const [enrollments, setEnrollments] = useState(lesson.enrollments || []);
+    const [raisedHands, setRaisedHands] = useState([]);
+
+    // Listen for realtime progress updates and hand raises
+    useEffect(() => {
+        const channel = window.Echo.private(`lesson.${lesson.id}`);
+
+        channel.listen('.progress.updated', (e) => {
+            // Update enrollment progress in realtime
+            setEnrollments(prev => prev.map(enrollment => {
+                if (enrollment.student.id === e.student_id) {
+                    return {
+                        ...enrollment,
+                        progress_percentage: e.progress_percentage
+                    };
+                }
+                return enrollment;
+            }));
+        });
+
+        // Listen for hand raise
+        channel.listen('.hand.raised', (e) => {
+            if (e.is_raised) {
+                // Add to raised hands list
+                setRaisedHands(prev => {
+                    const exists = prev.find(h => h.student.id === e.student.id);
+                    if (!exists) {
+                        // Show toast notification
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg bg-yellow-500 text-white font-semibold animate-slide-in-right';
+                        toast.innerHTML = `<div class="flex items-center gap-2"><span class="text-2xl">✋</span><span>${e.student.name} mengangkat tangan!</span></div>`;
+                        document.body.appendChild(toast);
+                        
+                        setTimeout(() => {
+                            toast.style.opacity = '0';
+                            toast.style.transition = 'opacity 0.3s';
+                            setTimeout(() => toast.remove(), 300);
+                        }, 4000);
+
+                        return [...prev, { student: e.student, timestamp: e.timestamp }];
+                    }
+                    return prev;
+                });
+
+                // Auto remove after 30 seconds
+                setTimeout(() => {
+                    setRaisedHands(prev => prev.filter(h => h.student.id !== e.student.id));
+                }, 30000);
+            } else {
+                // Remove from raised hands list
+                setRaisedHands(prev => prev.filter(h => h.student.id !== e.student.id));
+            }
+        });
+
+        return () => {
+            window.Echo.leave(`lesson.${lesson.id}`);
+        };
+    }, [lesson.id]);
+
+    const handleDismissHandRaise = (studentId) => {
+        setRaisedHands(prev => prev.filter(h => h.student.id !== studentId));
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         title: '',
@@ -432,6 +494,44 @@ export default function Show({ lesson, auth }) {
                         👥 Siswa Terdaftar ({lesson.enrollments.length})
                     </h3>
 
+                    {/* Raised Hands Alert */}
+                    {raisedHands.length > 0 && (
+                        <div className="mb-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-xl">
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-lg font-bold text-yellow-800 flex items-center gap-2">
+                                    <span className="text-2xl animate-bounce">✋</span>
+                                    Siswa Mengangkat Tangan ({raisedHands.length})
+                                </h4>
+                            </div>
+                            <div className="space-y-2">
+                                {raisedHands.map((item, index) => (
+                                    <div 
+                                        key={item.student.id}
+                                        className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white font-bold">
+                                                {item.student.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-gray-900">{item.student.name}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {new Date(item.timestamp).toLocaleTimeString('id-ID')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDismissHandRaise(item.student.id)}
+                                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            ✓ Dismiss
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {lesson.enrollments.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-6xl mb-4">👥</div>
@@ -451,9 +551,6 @@ export default function Show({ lesson, auth }) {
                                             Siswa
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Email
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Progres
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -462,7 +559,7 @@ export default function Show({ lesson, auth }) {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {lesson.enrollments.map((enrollment) => (
+                                    {enrollments.map((enrollment) => (
                                         <tr key={enrollment.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
@@ -475,9 +572,6 @@ export default function Show({ lesson, auth }) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {enrollment.student.email}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">

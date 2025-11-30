@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import FunButton from '@/Components/FunButton';
@@ -7,10 +7,90 @@ import MaterialViewer from '@/Components/MaterialViewer';
 import Modal from '@/Components/Modal';
 import ChatBoxAdvanced from '@/Components/ChatBoxAdvanced';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 export default function Show({ lesson, enrollment, auth }) {
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [showLeaveModal, setShowLeaveModal] = useState(false);
+    const [materials, setMaterials] = useState(lesson.materials || []);
+    const [progressPercentage, setProgressPercentage] = useState(enrollment.progress_percentage);
+    const [completedAt, setCompletedAt] = useState(enrollment.completed_at);
+
+    // Listen for realtime progress updates
+    useEffect(() => {
+        const channel = window.Echo.private(`lesson.${lesson.id}`);
+
+        channel.listen('.progress.updated', (e) => {
+            // Update progress if it's for current user
+            if (e.student_id === auth.user.id) {
+                setProgressPercentage(e.progress_percentage);
+                setCompletedAt(e.progress_percentage >= 100 ? new Date().toISOString() : null);
+                
+                // Update material completion status
+                setMaterials(prev => prev.map(m => 
+                    m.id === e.material_id 
+                        ? { ...m, is_completed: e.is_completed }
+                        : m
+                ));
+            }
+        });
+
+        return () => {
+            window.Echo.leave(`lesson.${lesson.id}`);
+        };
+    }, [lesson.id, auth.user.id]);
+
+    const handleToggleMaterialCompletion = async (materialId) => {
+        const material = materials.find(m => m.id === materialId);
+        const action = material?.is_completed ? 'membatalkan' : 'menandai';
+        
+        if (!confirm(`Apakah Anda yakin ingin ${action} materi "${material?.title}" sebagai selesai?`)) {
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `/api/lessons/${lesson.id}/materials/${materialId}/toggle-completion`
+            );
+
+            // Update local state immediately
+            setMaterials(prev => prev.map(m => 
+                m.id === materialId 
+                    ? { ...m, is_completed: response.data.is_completed }
+                    : m
+            ));
+            setProgressPercentage(response.data.progress_percentage);
+            setCompletedAt(response.data.progress_percentage >= 100 ? new Date().toISOString() : null);
+
+            // Show success message
+            const message = response.data.is_completed 
+                ? `✅ Materi "${material?.title}" ditandai selesai! Progress: ${response.data.progress_percentage}%`
+                : `ℹ️ Status materi "${material?.title}" dibatalkan`;
+            
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-semibold animate-slide-in-right';
+            toast.style.backgroundColor = response.data.is_completed ? '#10b981' : '#6b7280';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+
+            // Show celebration if completed all
+            if (response.data.progress_percentage >= 100) {
+                setTimeout(() => {
+                    alert('🎉 Selamat! Anda telah menyelesaikan semua materi di kelas ini!');
+                }, 500);
+            }
+        } catch (error) {
+            console.error('Failed to toggle material completion:', error);
+            alert('❌ Gagal mengupdate status materi: ' + (error.response?.data?.error || error.message));
+        }
+    };
 
     const handleStartQuiz = (quizId) => {
         router.post(route('student.quiz-attempts.start', { lesson: lesson.id, quiz: quizId }));
@@ -166,20 +246,25 @@ export default function Show({ lesson, enrollment, auth }) {
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         Progress Belajar Anda
                                     </h3>
-                                    {enrollment.completed_at && (
+                                    {completedAt && (
                                         <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500 text-white font-semibold">
                                             <span>🎉</span> Selesai
                                         </span>
                                     )}
                                 </div>
                                 <ProgressBar
-                                    percentage={enrollment.progress_percentage}
+                                    percentage={progressPercentage}
                                     showLabel={false}
                                     height="h-4"
                                 />
-                                <p className="text-xs text-gray-500 mt-2">
-                                    💡 Progress otomatis bertambah saat Anda menyelesaikan quiz dengan nilai passing
-                                </p>
+                                <div className="flex items-center justify-between mt-2">
+                                    <p className="text-xs text-gray-500">
+                                        💡 Tandai materi sebagai selesai untuk update progress
+                                    </p>
+                                    <p className="text-sm font-semibold text-purple-600">
+                                        {materials.filter(m => m.is_completed).length} / {materials.length} Materi
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,37 +282,66 @@ export default function Show({ lesson, enrollment, auth }) {
                                         <span>📚</span> Materi Pembelajaran
                                     </h3>
                                     <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold text-sm">
-                                        {lesson.materials?.length || 0} Materi
+                                        {materials?.length || 0} Materi
                                     </span>
                                 </div>
 
                                 {lesson.materials && lesson.materials.length > 0 ? (
                                     <div className="space-y-4">
-                                        {lesson.materials.map((material, index) => (
+                                        {materials.map((material, index) => (
                                             <motion.div
                                                 key={material.id}
                                                 whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                className="border-2 border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer"
-                                                onClick={() => setSelectedMaterial(material)}
+                                                className={`border-2 rounded-xl p-4 transition-all ${
+                                                    material.is_completed 
+                                                        ? 'border-green-300 bg-green-50' 
+                                                        : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+                                                }`}
                                             >
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-2xl">
-                                                        {getMaterialIcon(material.type)}
+                                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${
+                                                        material.is_completed
+                                                            ? 'bg-gradient-to-br from-green-500 to-emerald-500'
+                                                            : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                                                    }`}>
+                                                        {material.is_completed ? '✅' : getMaterialIcon(material.type)}
                                                     </div>
                                                     <div className="flex-1">
-                                                        <h4 className="font-semibold text-gray-900 mb-1">
+                                                        <h4 className={`font-semibold mb-1 ${
+                                                            material.is_completed ? 'text-green-800' : 'text-gray-900'
+                                                        }`}>
                                                             {index + 1}. {material.title}
                                                         </h4>
                                                         <div className="flex items-center gap-4 text-sm text-gray-600">
                                                             <span className="capitalize">{material.type}</span>
                                                             <span>•</span>
                                                             <span>{formatFileSize(material.file_size)}</span>
+                                                            {material.is_completed && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="text-green-600 font-semibold">✓ Selesai</span>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    <FunButton variant="outline" size="sm" icon="👁️">
-                                                        Lihat
-                                                    </FunButton>
+                                                    <div className="flex items-center gap-2">
+                                                        <FunButton 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            icon="👁️"
+                                                            onClick={() => setSelectedMaterial(material)}
+                                                        >
+                                                            Lihat
+                                                        </FunButton>
+                                                        <FunButton 
+                                                            variant={material.is_completed ? 'success' : 'primary'}
+                                                            size="sm" 
+                                                            icon={material.is_completed ? '✅' : '☑️'}
+                                                            onClick={() => handleToggleMaterialCompletion(material.id)}
+                                                        >
+                                                            {material.is_completed ? 'Selesai' : 'Tandai Selesai'}
+                                                        </FunButton>
+                                                    </div>
                                                 </div>
                                             </motion.div>
                                         ))}

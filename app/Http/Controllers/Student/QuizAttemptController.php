@@ -402,44 +402,26 @@ class QuizAttemptController extends Controller
     }
 
     /**
-     * Update lesson progress based on completed quizzes and materials
+     * Update lesson progress based on completed materials
      */
     private function updateLessonProgress($lesson, $studentId)
     {
-        // Load lesson with materials and quizzes (only active quizzes for progress calculation)
-        $lesson->load([
-            'materials',
-            'quizzes' => function ($query) {
-                $query->where('is_active', true);
-            }
-        ]);
+        // Load lesson with materials
+        $lesson->load('materials');
         
         $totalMaterials = $lesson->materials->count();
-        $totalQuizzes = $lesson->quizzes->count();
         
-        if ($totalMaterials === 0 && $totalQuizzes === 0) {
+        if ($totalMaterials === 0) {
             return;
         }
         
-        // Count completed quizzes (passed with passing score)
-        $completedQuizzes = QuizAttempt::where('student_id', $studentId)
-            ->whereIn('quiz_id', $lesson->quizzes->pluck('id'))
-            ->whereNotNull('completed_at')
-            ->selectRaw('quiz_id, MAX(score) as best_score')
-            ->groupBy('quiz_id')
-            ->get()
-            ->filter(function ($attempt) use ($lesson) {
-                $quiz = $lesson->quizzes->firstWhere('id', $attempt->quiz_id);
-                return $quiz && $attempt->best_score >= $quiz->passing_score;
-            })
+        // Count completed materials
+        $completedMaterials = \App\Models\MaterialCompletion::where('student_id', $studentId)
+            ->where('lesson_id', $lesson->id)
             ->count();
         
-        // For now, we count progress based on quiz completion only
-        // You can enhance this to track material views if needed
-        $totalItems = $totalQuizzes > 0 ? $totalQuizzes : 1;
-        $completedItems = $completedQuizzes;
-        
-        $progressPercentage = round(($completedItems / $totalItems) * 100);
+        // Calculate progress percentage
+        $progressPercentage = round(($completedMaterials / $totalMaterials) * 100);
         $progressPercentage = min($progressPercentage, 100);
         
         // Update enrollment progress
