@@ -3,6 +3,7 @@ import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import FunButton from '@/Components/FunButton';
 import ChatBoxAdvanced from '@/Components/ChatBoxAdvanced';
+import UploadProgressModal from '@/Components/UploadProgressModal';
 import { motion } from 'framer-motion';
 import {
     PencilIcon,
@@ -19,7 +20,11 @@ import {
 
 export default function Show({ lesson, auth }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showProgressModal, setShowProgressModal] = useState(false);
     const [dragActive, setDragActive] = useState(false);
+    const [uploadFile, setUploadFile] = useState(null);
+    const [uploadTitle, setUploadTitle] = useState('');
+    const [uploadType, setUploadType] = useState('pdf');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         title: '',
@@ -56,13 +61,37 @@ export default function Show({ lesson, auth }) {
 
     const handleUploadSubmit = (e) => {
         e.preventDefault();
-        post(route('teacher.lessons.materials.store', lesson.id), {
-            forceFormData: true,
-            onSuccess: () => {
-                setShowUploadModal(false);
-                reset();
-            },
-        });
+        
+        // Validation
+        if (!data.file) {
+            alert('Silakan pilih file untuk diunggah');
+            return;
+        }
+        
+        if (!data.title.trim()) {
+            alert('Judul materi tidak boleh kosong');
+            return;
+        }
+        
+        // Set upload data and show progress modal
+        setUploadFile(data.file);
+        setUploadTitle(data.title);
+        setUploadType(data.type);
+        setShowUploadModal(false);
+        setShowProgressModal(true);
+    };
+    
+    const handleUploadSuccess = (material) => {
+        // Reload page to show new material
+        router.reload({ only: ['lesson'] });
+        reset();
+    };
+    
+    const handleCloseProgressModal = () => {
+        setShowProgressModal(false);
+        setUploadFile(null);
+        setUploadTitle('');
+        setUploadType('pdf');
     };
 
     const handleDeleteMaterial = (materialId) => {
@@ -605,7 +634,7 @@ export default function Show({ lesson, auth }) {
                                                     Klik untuk mengunggah atau seret dan lepas
                                                     <br />
                                                     <span className="text-xs text-gray-500">
-                                                        Ukuran file maksimal: 100MB
+                                                        Ukuran file maksimal: 200MB
                                                     </span>
                                                 </>
                                             )}
@@ -641,6 +670,17 @@ export default function Show({ lesson, auth }) {
                     </motion.div>
                 </div>
             )}
+            
+            {/* Upload Progress Modal */}
+            <UploadProgressModal
+                isOpen={showProgressModal}
+                onClose={handleCloseProgressModal}
+                file={uploadFile}
+                title={uploadTitle}
+                type={uploadType}
+                lessonId={lesson.id}
+                onSuccess={handleUploadSuccess}
+            />
         </AuthenticatedLayout>
     );
 }

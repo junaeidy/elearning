@@ -23,8 +23,13 @@ class MaterialController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|in:video,pdf,image,audio,slide,document',
-            'file' => 'required|file|max:102400', // max 100MB
+            'file' => 'required|file|max:204800', // max 200MB (in KB)
             'order_index' => 'nullable|integer|min:0',
+        ], [
+            'file.max' => 'File terlalu besar. Ukuran maksimal adalah 200MB.',
+            'file.required' => 'File wajib dipilih.',
+            'title.required' => 'Judul materi wajib diisi.',
+            'type.required' => 'Tipe materi wajib dipilih.',
         ]);
 
         // Validate file type based on material type
@@ -42,28 +47,42 @@ class MaterialController extends Controller
 
         // Validate mime type
         if (isset($mimeTypeRules[$validated['type']]) && !in_array($mimeType, $mimeTypeRules[$validated['type']])) {
-            return back()->withErrors(['file' => 'The file type does not match the selected material type.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Tipe file tidak sesuai dengan tipe materi yang dipilih.'
+            ], 422);
         }
 
-        // Store file
-        $path = $file->store('materials/' . $lesson->id, 'public');
+        try {
+            // Store file
+            $path = $file->store('materials/' . $lesson->id, 'public');
 
-        // Get the next order number if not provided
-        if (!isset($validated['order_index'])) {
-            $validated['order_index'] = $lesson->materials()->max('order_index') + 1;
+            // Get the next order number if not provided
+            if (!isset($validated['order_index'])) {
+                $validated['order_index'] = $lesson->materials()->max('order_index') + 1;
+            }
+
+            // Create material
+            $material = $lesson->materials()->create([
+                'title' => $validated['title'],
+                'type' => $validated['type'],
+                'file_path' => $path,
+                'file_size' => $file->getSize(),
+                'mime_type' => $mimeType,
+                'order_index' => $validated['order_index'],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Materi berhasil diunggah!',
+                'material' => $material
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengunggah materi: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Create material
-        $material = $lesson->materials()->create([
-            'title' => $validated['title'],
-            'type' => $validated['type'],
-            'file_path' => $path,
-            'file_size' => $file->getSize(),
-            'mime_type' => $mimeType,
-            'order_index' => $validated['order_index'],
-        ]);
-
-        return back()->with('success', 'Materi berhasil diunggah!');
     }
 
     /**
